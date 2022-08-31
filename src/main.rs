@@ -3,5 +3,5 @@ mod project;
 use project::*;
 
 fn main() {
-    println!("{}", Project::new());
+    println!("{:?}", Project::new());
 }
