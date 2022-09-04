@@ -1,9 +1,8 @@
-use self::track_type::TrackType;
+pub mod track_data_type;
 
-pub mod track_type;
+use track_data_type::*;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Track {
-    pub(super) track_type: TrackType,
-    pub(super) data: Vec<u8>
+    pub(super) data: TrackDataType
 }
