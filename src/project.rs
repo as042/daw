@@ -5,27 +5,31 @@ use std::mem::discriminant;
 pub mod track;
 pub mod track_type;
 
-use track::{*, track_data_type::{*, raw_samples::*, midi::*, score::*}};
-use track_type::*;
+pub use track::*;
+pub use track_type::*;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Project {
-    tracks: Vec<Track>
+    pub(crate) tracks: Vec<Track>
 }
 
 impl Project {
-    pub fn new() -> Project {
-        Project { tracks: Vec::default() }
+    pub fn new() -> Self {
+        Self { tracks: Vec::default() }
     }
+
+    pub fn tracks(&self) -> &Vec<Track> { &self.tracks }
 
     pub fn new_track(&mut self, track_type: TrackType) {
         let mut track = Track {
             data: TrackDataType::default()
         };
 
-        if track_type == TrackType::RawSamples { track.data = TrackDataType::RawSamples(RawSamples::default()) }
+        if track_type == TrackType::RawSamples { track.data = TrackDataType::RawSamples(RawSamples::new()) }
         if track_type == TrackType::MIDI { track.data = TrackDataType::default() }
         if track_type == TrackType::Score { track.data = TrackDataType::Score(Score::default()) }
+
+        self.tracks.push(track);
     }
 
     pub fn export_midi(&self) -> Result<(), String> {
