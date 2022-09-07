@@ -1,17 +1,16 @@
+use crate::project::WavSettings;
+
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RawSamples {
-    pub(super) samples: Vec<u8>,
-    pub(in crate::project) num_channels: i32,
-    pub(in crate::project) sample_rate: i32,
-    pub(in crate::project) bytes_per_sample: i32
+    samples: Vec<u8>,
+    pub(crate) settings: WavSettings
 }
 
 impl RawSamples {
     pub(in crate::project) fn new() -> Self {
-        Self { samples: Vec::default(), 
-            num_channels: 2, 
-            sample_rate: 44100, 
-            bytes_per_sample: 2 
+        Self { 
+            samples: Vec::default(), 
+            settings: WavSettings::default()
         }
     }
 

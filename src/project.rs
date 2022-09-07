@@ -4,9 +4,13 @@ use std::mem::discriminant;
 
 pub mod track;
 pub mod track_type;
+pub mod wav_settings;
+pub mod wav_writer;
 
 pub use track::*;
 pub use track_type::*;
+pub use wav_settings::*;
+pub use wav_writer::*;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Project {
@@ -25,7 +29,7 @@ impl Project {
             data: TrackDataType::default()
         };
 
-        if track_type == TrackType::RawSamples { track.data = TrackDataType::RawSamples(RawSamples::new()) }
+        if track_type == TrackType::RawSamples { track.data = TrackDataType::RawSamples(RawSamples::default()) }
         if track_type == TrackType::MIDI { track.data = TrackDataType::default() }
         if track_type == TrackType::Score { track.data = TrackDataType::Score(Score::default()) }
 
@@ -34,14 +38,20 @@ impl Project {
 
     pub fn export_midi(&self) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
-        if self.tracks.iter().any(|x| discriminant(&x.data) == discriminant(&TrackDataType::RawSamples(Default::default()))) { return Err("Not all tracks are MIDI type.".to_string()); }
+        if self.tracks.iter().any(|x| x.is_type(TrackType::MIDI) == false) { return Err("Not all tracks are MIDI type.".to_string()); }
 
         todo!();
     }
 
-    pub fn export_wav(&self) -> Result<(), String> {
+    pub fn export_wav(&self, wav_settings: WavSettings, file_name: String) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
 
-        todo!();
+        let wav = Wav::default();
+
+        let wav_vector = wav.create_wav();
+
+        // write wav_vector to file_name
+
+        Ok(())
     }
 }

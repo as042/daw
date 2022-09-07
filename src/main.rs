@@ -9,7 +9,7 @@ fn main() {
 
     project.new_track(TrackType::RawSamples);
 
-    let track = project.tracks.iter_mut().find(|x| x.is_type(TrackType::RawSamples) == true).unwrap();
+    let track = project.tracks.iter_mut().find(|x| x.is_type(TrackType::RawSamples)).unwrap();
 
     let data = track.data.raw_samples().unwrap();
 
