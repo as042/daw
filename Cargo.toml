@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 enum-as-inner = "0.5.1"
+byteorder = "1.4.3"

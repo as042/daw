@@ -22,16 +22,14 @@ impl Project {
         Self { tracks: Vec::default() }
     }
 
-    pub fn tracks(&self) -> &Vec<Track> { &self.tracks }
-
     pub fn new_track(&mut self, track_type: TrackType) {
         let mut track = Track {
             data: TrackDataType::default()
         };
 
         if track_type == TrackType::RawSamples { track.data = TrackDataType::RawSamples(RawSamples::default()) }
-        if track_type == TrackType::MIDI { track.data = TrackDataType::default() }
         if track_type == TrackType::Score { track.data = TrackDataType::Score(Score::default()) }
+        if track_type == TrackType::MIDI { track.data = TrackDataType::default() }
 
         self.tracks.push(track);
     }
@@ -46,9 +44,9 @@ impl Project {
     pub fn export_wav(&self, wav_settings: WavSettings, file_name: String) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
 
-        let wav = Wav::default();
+        let mut wav = Wav::default();
 
-        let wav_vector = wav.create_wav();
+        let wav_vector = wav.create_wav(self);
 
         // write wav_vector to file_name
 

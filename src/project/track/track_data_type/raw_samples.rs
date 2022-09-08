@@ -14,6 +14,10 @@ impl RawSamples {
         }
     }
 
+    pub(crate) fn samples(&self) -> &Vec<u8> {
+        &self.samples
+    }
+
     pub(crate) fn push_sample(&mut self, sample: u8) {
         self.samples.push(sample);
     }

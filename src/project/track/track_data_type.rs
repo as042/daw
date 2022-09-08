@@ -22,21 +22,43 @@ impl Default for TrackDataType {
 }
 
 impl TrackDataType {
-    pub fn raw_samples(&mut self) -> Result<&mut RawSamples, String> {
+    pub fn raw_samples(&self) -> Result<&RawSamples, String> {
+        if self.is_type(TrackType::RawSamples) {
+            return Ok(self.as_raw_samples().unwrap())
+        }
+
+        Err("Track is not of type RawSamples.".to_string())
+    }
+    pub fn score(&self) -> Result<&Score, String> {
+        if self.is_type(TrackType::Score) {
+            return Ok(self.as_score().unwrap())
+        }
+
+        Err("Track is not of type Score.".to_string())
+    }
+    pub fn midi(&self) -> Result<&MIDI, String> {
+        if self.is_type(TrackType::MIDI) {
+            return Ok(self.as_midi().unwrap())
+        }
+
+        Err("Track is not of type MIDI.".to_string())
+    }
+
+    pub fn raw_samples_mut(&mut self) -> Result<&mut RawSamples, String> {
         if self.is_type(TrackType::RawSamples) {
             return Ok(self.as_raw_samples_mut().unwrap())
         }
 
         Err("Track is not of type RawSamples.".to_string())
     }
-    pub fn score(&mut self) -> Result<&mut Score, String> {
+    pub fn score_mut(&mut self) -> Result<&mut Score, String> {
         if self.is_type(TrackType::Score) {
             return Ok(self.as_score_mut().unwrap())
         }
 
         Err("Track is not of type Score.".to_string())
     }
-    pub fn midi(&mut self) -> Result<&mut MIDI, String> {
+    pub fn midi_mut(&mut self) -> Result<&mut MIDI, String> {
         if self.is_type(TrackType::MIDI) {
             return Ok(self.as_midi_mut().unwrap())
         }
@@ -48,8 +70,8 @@ impl TrackDataType {
         let mut data_type = TrackDataType::default();
 
         if track_type == TrackType::RawSamples { data_type = TrackDataType::RawSamples(RawSamples::default()) }
-        if track_type == TrackType::MIDI { data_type = TrackDataType::default() }
         if track_type == TrackType::Score { data_type = TrackDataType::Score(Score::default()) }
+        if track_type == TrackType::MIDI { data_type = TrackDataType::default() }
 
         if discriminant(self) == discriminant(&data_type) {
             return true;

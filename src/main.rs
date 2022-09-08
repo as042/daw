@@ -11,7 +11,7 @@ fn main() {
 
     let track = project.tracks.iter_mut().find(|x| x.is_type(TrackType::RawSamples)).unwrap();
 
-    let data = track.data.raw_samples().unwrap();
+    let data = track.data.raw_samples_mut().unwrap();
 
     data.push_sample(0xFF);
 }

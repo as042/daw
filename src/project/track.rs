@@ -16,13 +16,30 @@ impl Track {
         let mut data_type = TrackDataType::default();
 
         if track_type == TrackType::RawSamples { data_type = TrackDataType::RawSamples(RawSamples::default()) }
-        if track_type == TrackType::MIDI { data_type = TrackDataType::default() }
         if track_type == TrackType::Score { data_type = TrackDataType::Score(Score::default()) }
+        if track_type == TrackType::MIDI { data_type = TrackDataType::default() }
+
 
         if discriminant(&self.data) == discriminant(&data_type) {
             return true;
         }
 
         false
+    }
+
+    pub(crate) fn len(&self) -> usize {
+        let data = self.data;
+
+        if let Ok(raw_samples) = data.raw_samples() {
+            return raw_samples.samples().len();
+        }
+        if let Ok(score) = data.score() {
+            return score.samples().len();
+        }
+        if let Ok(midi) = data.midi() {
+            return midi.samples().len();
+        }
+
+        0
     }
 }
