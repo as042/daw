@@ -13,5 +13,19 @@ fn main() {
 
     let data = track.data.raw_samples_mut().unwrap();
 
-    data.push_sample(0xFF);
+    for _ in 0..44100 * 1 {
+        data.push_sample(0x00);
+        data.push_sample(0x80);
+        data.push_sample(0x00);
+        data.push_sample(0x80);
+        data.push_sample(0x00);
+        data.push_sample(0xC0);
+        data.push_sample(0x00);
+        data.push_sample(0xC0);
+    }
+
+    project.export_wav(WavSettings { 
+        num_channels: 2, 
+        sample_rate: 44100, 
+        bytes_per_sample: 2}, "test.wav".to_string()).unwrap();
 }

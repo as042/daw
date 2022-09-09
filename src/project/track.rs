@@ -28,7 +28,7 @@ impl Track {
     }
 
     pub(crate) fn len(&self) -> usize {
-        let data = self.data;
+        let data = &self.data;
 
         if let Ok(raw_samples) = data.raw_samples() {
             return raw_samples.samples().len();

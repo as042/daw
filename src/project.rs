@@ -1,6 +1,6 @@
 #![allow(dead_code, non_snake_case)]
 
-use std::mem::discriminant;
+use std::{mem::discriminant, fs::OpenOptions, io::Write};
 
 pub mod track;
 pub mod track_type;
@@ -41,14 +41,24 @@ impl Project {
         todo!();
     }
 
-    pub fn export_wav(&self, wav_settings: WavSettings, file_name: String) -> Result<(), String> {
+    pub fn export_wav(&self, wav_settings: WavSettings, path: String) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
 
-        let mut wav = Wav::default();
+        let mut wav = Wav {
+            NumChannels: wav_settings.num_channels,
+            SampleRate: wav_settings.sample_rate,
+            BitsPerSample: wav_settings.bytes_per_sample * 8,
+            ..Default::default()
+        };
 
         let wav_vector = wav.create_wav(self);
 
-        // write wav_vector to file_name
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(path).unwrap();
+
+        file.write_all(&wav_vector).unwrap();
 
         Ok(())
     }
