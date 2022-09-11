@@ -58,20 +58,20 @@ impl Wav {
 
     fn create_header(&self, vec: &mut Vec<u8>) {
         vec.extend_from_slice(&self.ChunkID.to_be_bytes());
-        vec.extend_from_slice(&self.ChunkSize.to_le_bytes());
+        vec.extend_from_slice(&self.ChunkSize.to_le_bytes()[0..4]);
         vec.extend_from_slice(&self.Format.to_be_bytes());
 
-        vec.extend_from_slice(&self.Subchunk1ID.to_be_bytes());
-        vec.extend_from_slice(&self.Subchunk1Size.to_le_bytes());
-        vec.extend_from_slice(&self.AudioFormat.to_le_bytes());
-        vec.extend_from_slice(&self.NumChannels.to_le_bytes());
-        vec.extend_from_slice(&self.SampleRate.to_le_bytes());
-        vec.extend_from_slice(&self.ByteRate.to_le_bytes());
-        vec.extend_from_slice(&self.BlockAlign.to_le_bytes());
-        vec.extend_from_slice(&self.BitsPerSample.to_le_bytes());
+        vec.extend_from_slice(&self.Subchunk1ID.to_be_bytes()[4..8]);
+        vec.extend_from_slice(&self.Subchunk1Size.to_le_bytes()[0..4]);
+        vec.extend_from_slice(&self.AudioFormat.to_le_bytes()[0..2]);
+        vec.extend_from_slice(&self.NumChannels.to_le_bytes()[0..2]);
+        vec.extend_from_slice(&self.SampleRate.to_le_bytes()[0..4]);
+        vec.extend_from_slice(&self.ByteRate.to_le_bytes()[0..4]);
+        vec.extend_from_slice(&self.BlockAlign.to_le_bytes()[0..2]);
+        vec.extend_from_slice(&self.BitsPerSample.to_le_bytes()[0..2]);
 
         vec.extend_from_slice(&self.Subchunk2ID.to_be_bytes());
-        vec.extend_from_slice(&self.Subchunk2Size.to_le_bytes());
+        vec.extend_from_slice(&self.Subchunk2Size.to_le_bytes()[0..4]);
     }
 }
 

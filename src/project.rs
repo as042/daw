@@ -1,6 +1,6 @@
 #![allow(dead_code, non_snake_case)]
 
-use std::{mem::discriminant, fs::OpenOptions, io::Write};
+use std::{mem::discriminant, fs::OpenOptions, io::Write, path::Path};
 
 pub mod track;
 pub mod track_type;
@@ -41,7 +41,7 @@ impl Project {
         todo!();
     }
 
-    pub fn export_wav(&self, wav_settings: WavSettings, path: String) -> Result<(), String> {
+    pub fn export_wav(&self, wav_settings: WavSettings, path: impl AsRef<Path>) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
 
         let mut wav = Wav {

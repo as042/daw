@@ -18,7 +18,9 @@ impl RawSamples {
         &self.samples
     }
 
-    pub(crate) fn push_sample(&mut self, sample: u8) {
-        self.samples.push(sample);
+    /// Pushes the given 2-byte sample to the data twice for stereo.
+    pub(crate) fn push_sample(&mut self, sample: &[u8; 2]) {
+        self.samples.extend_from_slice(sample);
+        self.samples.extend_from_slice(sample);
     }
 }
