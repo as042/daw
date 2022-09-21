@@ -14,9 +14,9 @@ fn main() {
     let data = track.data.raw_samples_mut().unwrap();
 
     for _ in 0..22050 {
-        data.push_sample(&[0, 0x80]);
-        data.push_sample(&[0, 0x81]);
-        data.push_sample(&[0, 0x80]);
+        data.push_sample(&[0, 0x08]);
+        data.push_sample(&[0, 0xFF]);
+        data.push_sample(&[0xA, 0x80]);
         data.push_sample(&[0, 0x7F]);
     }
 
