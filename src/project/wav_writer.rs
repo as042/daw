@@ -1,6 +1,9 @@
 use crate::track::*;
-
 use super::{Project, TrackType, WavSettings};
+
+mod raw_sample_writer;
+
+use raw_sample_writer::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Wav {
@@ -60,54 +63,6 @@ impl Wav {
 
         vec.extend_from_slice(&self.Subchunk2ID.to_be_bytes());
         vec.extend_from_slice(&self.Subchunk2Size.to_le_bytes()[0..4]);
-    }
-
-    fn raw_sample_data(&self, data: &mut Vec<u8>, tracks: &Vec<Track>) {
-        let len = tracks.iter().map(|x| x.len()).max().unwrap();
-
-        for track in tracks.iter().filter(|x| x.is_type(TrackType::RawSamples)) {
-            let raw_samples = track.data.raw_samples().unwrap();
-            let samples = raw_samples.samples();
-            let settings = raw_samples.settings;
-
-            let prev_channel = usize::default();
-            for i in (0..len).step_by(settings.bytes_per_sample as usize) {
-                let channel = i / settings.bytes_per_sample as usize % settings.num_channels; // idx of channel
-
-                // channel idx is as high as it goes but less than export channels
-                if settings.num_channels < self.NumChannels && channel + 1 == settings.num_channels {
-                    self.compute_raw_sample(samples, settings, i);
-
-                    for _ in 0..self.NumChannels - channel + 1 {
-                        for _ in 0..self.NumChannels {
-                            data.push(0);
-                        }
-                    }
-                }
-                // channel idx is within range of export channels
-                else if channel < self.NumChannels {
-                    self.compute_raw_sample(samples, settings, i);
-                }
-                // channel idx is outside range of export channels
-                else if channel >= self.NumChannels {
-                    continue;
-                }
-                // uh-oh, I forgot a case!
-                else {
-                    panic!("you dun messed up: {channel}");
-                }
-            }
-        }
-    }
-
-    fn compute_raw_sample(&self, samples: &Vec<u8>, settings: WavSettings, i: usize) {
-        let mut sample: [u8; 16] = [0; 16];
-                    
-        for k in 0..settings.bytes_per_sample as usize {
-            sample[k] = samples[i + k];
-        }
-
-        let sample_int = u128::from_le_bytes(sample);
     }
 }
 
