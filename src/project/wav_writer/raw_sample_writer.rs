@@ -1,4 +1,5 @@
 use super::*;
+use crate::project::resample::*;
 
 impl Wav {
     pub(super) fn raw_sample_data(&self, data: &mut Vec<u8>, tracks: &Vec<Track>) {
@@ -58,7 +59,9 @@ impl Wav {
         }
         // ruh-roh
         else {
-            
+            let time = i as i32 / settings.bytes_per_sample * settings.num_channels as i32;
+
+            resample(sample);
         }
     }
 }

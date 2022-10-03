@@ -1,6 +1,8 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
 mod project;
+#[cfg(test)]
+mod tests;
 
 use project::*;
 

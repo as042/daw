@@ -67,11 +67,11 @@ impl TrackDataType {
     }
 
     pub(crate) fn is_type(&self, track_type: TrackType) -> bool {
-        let mut data_type = TrackDataType::default();
-
-        if track_type == TrackType::RawSamples { data_type = TrackDataType::RawSamples(RawSamples::default()) }
-        if track_type == TrackType::Score { data_type = TrackDataType::Score(Score::default()) }
-        if track_type == TrackType::MIDI { data_type = TrackDataType::default() }
+        let data_type = match track_type {
+            TrackType::RawSamples => TrackDataType::RawSamples(RawSamples::default()),
+            TrackType::Score => TrackDataType::Score(Score::default()),
+            TrackType::MIDI => TrackDataType::MIDI(MIDI::default())
+        };
 
         if discriminant(self) == discriminant(&data_type) {
             return true;

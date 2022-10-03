@@ -7,13 +7,6 @@ pub struct RawSamples {
 }
 
 impl RawSamples {
-    pub(in crate::project) fn new() -> Self {
-        Self { 
-            samples: Vec::default(), 
-            settings: WavSettings::default()
-        }
-    }
-
     pub(crate) fn samples(&self) -> &Vec<u8> {
         &self.samples
     }

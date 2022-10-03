@@ -13,18 +13,7 @@ pub struct Track {
 
 impl Track {
     pub(crate) fn is_type(&self, track_type: TrackType) -> bool {
-        let mut data_type = TrackDataType::default();
-
-        if track_type == TrackType::RawSamples { data_type = TrackDataType::RawSamples(RawSamples::default()) }
-        if track_type == TrackType::Score { data_type = TrackDataType::Score(Score::default()) }
-        if track_type == TrackType::MIDI { data_type = TrackDataType::default() }
-
-
-        if discriminant(&self.data) == discriminant(&data_type) {
-            return true;
-        }
-
-        false
+        self.data.is_type(track_type)
     }
 
     pub(crate) fn len(&self) -> usize {
@@ -33,10 +22,10 @@ impl Track {
         if let Ok(raw_samples) = data.raw_samples() {
             return raw_samples.samples().len();
         }
-        if let Ok(score) = data.score() {
+        else if let Ok(score) = data.score() {
             return score.samples().len();
         }
-        if let Ok(midi) = data.midi() {
+        else if let Ok(midi) = data.midi() {
             return midi.samples().len();
         }
 

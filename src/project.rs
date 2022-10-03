@@ -6,6 +6,7 @@ pub mod track;
 pub mod track_type;
 pub mod wav_settings;
 pub mod wav_writer;
+mod resample;
 
 pub use track::*;
 pub use track_type::*;
@@ -14,7 +15,7 @@ pub use wav_writer::*;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Project {
-    pub(crate) tracks: Vec<Track>
+    pub tracks: Vec<Track>
 }
 
 impl Project {
@@ -27,9 +28,11 @@ impl Project {
             data: TrackDataType::default()
         };
 
-        if track_type == TrackType::RawSamples { track.data = TrackDataType::RawSamples(RawSamples::default()) }
-        if track_type == TrackType::Score { track.data = TrackDataType::Score(Score::default()) }
-        if track_type == TrackType::MIDI { track.data = TrackDataType::default() }
+        track.data = match track_type {
+            TrackType::RawSamples => TrackDataType::RawSamples(RawSamples::default()),
+            TrackType::Score => TrackDataType::Score(Score::default()),
+            TrackType::MIDI => TrackDataType::MIDI(MIDI::default())
+        };
 
         self.tracks.push(track);
     }
