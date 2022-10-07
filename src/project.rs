@@ -6,6 +6,7 @@ pub mod track;
 pub mod track_type;
 pub mod wav_settings;
 pub mod wav_writer;
+pub mod wave;
 mod resample;
 
 pub use track::*;

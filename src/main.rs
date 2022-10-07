@@ -23,7 +23,7 @@ fn main() {
     }
 
     project.export_wav(WavSettings { 
-        num_channels: 2, 
+        num_channels: 1, 
         sample_rate: 44100, 
         bytes_per_sample: 2}, "test.wav").unwrap();
 }

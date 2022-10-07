@@ -1,3 +1,5 @@
+use std::collections::btree_map::Iter;
+
 use super::*;
 use crate::project::resample::*;
 
@@ -28,14 +30,8 @@ impl Wav {
                 else if channel < self.NumChannels {
                     self.compute_raw_sample(data, samples, settings, i);
                 }
+
                 // channel idx is outside range of export channels
-                else if channel >= self.NumChannels {
-                    continue;
-                }
-                // uh-oh, I forgot a case!
-                else {
-                    panic!("you dun messed up: {channel}");
-                }
             }
         }
     }
@@ -49,13 +45,7 @@ impl Wav {
 
         // the "easy" case
         if settings.sample_rate == self.SampleRate {
-            let sample_int = u64::from_le_bytes(sample);
-
-            let double = sample_int as f64 / 2_f64.powf(settings.bytes_per_sample as f64 * 8_f64);
-
-            let final_value = double * 2_f64.powf(self.BitsPerSample as f64);
-
-            data.extend_from_slice(&final_value.to_le_bytes());
+            self.write_raw_sample(data, sample, settings, i);
         }
         // ruh-roh
         else {
@@ -63,5 +53,40 @@ impl Wav {
 
             resample(sample);
         }
+    }
+
+    fn write_raw_sample(&self, data: &mut Vec<u8>, sample: [u8; 8], settings: WavSettings, i: usize) {
+        let value1 = self.sample_to_value(sample, settings);
+
+        let idx = i / settings.bytes_per_sample as usize;
+        let mut sample2 = [0; 8];
+        for k in 0..8 {
+            sample2[k] = data[idx + k];
+        }
+        let value2 = self.sample_to_value(sample2, settings);
+        
+        let mut sum = value1 + value2;
+        let sample_max = 2_f64.powf(self.BitsPerSample as f64);
+
+        sum *= sample_max;
+
+        if sum.abs() >= sample_max {
+            sum = sum.signum() * (sample_max - 1.0);
+        }
+
+        let bytes = sum.to_le_bytes();
+
+        for k in idx..(idx + 8) {
+            data[k] = bytes[k - idx];
+        }
+    }
+
+    fn sample_to_value(&self, sample: [u8; 8], settings: WavSettings) -> f64 {
+        let sample_int = u64::from_le_bytes(sample);
+        let double = sample_int as f64 / 2_f64.powf(settings.bytes_per_sample as f64 * 8_f64);
+        let unsigned_value = double * 2_f64.powf(self.BitsPerSample as f64);
+        let final_value = unsigned_value * 2.0 - 1.0;
+    
+        final_value
     }
 }

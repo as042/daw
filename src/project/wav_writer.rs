@@ -40,7 +40,7 @@ impl Wav {
 
         self.create_header(&mut vec);
 
-        let mut data = Vec::with_capacity(len);
+        let mut data = vec![0; len];
 
         self.raw_sample_data(&mut data, tracks);
 
