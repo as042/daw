@@ -1,6 +1,6 @@
 use std::f32::consts::TAU;
 
-use crate::project::{WavSettings, wave::Wave};
+use crate::project::{WavSettings, wave::Wave, sample_conversion::f64_to_sample};
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RawSamples {
@@ -19,12 +19,17 @@ impl RawSamples {
         self.samples.extend_from_slice(sample);
     }
 
-    pub fn push_sin_sample(&mut self, wave: Wave, time: f32) {
+    /// Calculates sin sample using given values and pushes it to self.
+    pub fn push_sin_sample(&mut self, wave: Wave, time: f64) {
         let freq = wave.freq;
         let amp = wave.amp;
         let phase_shift = wave.amp;
 
-        let value = amp * (TAU * freq * time + phase_shift).sin();
-        let bytes = value.to_le_bytes();
+        let value = amp * (TAU as f64 * freq * time + phase_shift).sin();
+        let sample = f64_to_sample(value, self.settings.bytes_per_sample);
+
+        // println!("{value}, {:?}", sample);
+
+        self.samples.extend_from_slice(&sample);
     }
 }

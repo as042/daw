@@ -1,6 +1,6 @@
 #![allow(dead_code, non_snake_case)]
 
-use std::{mem::discriminant, fs::OpenOptions, io::Write, path::Path};
+use std::{fs::OpenOptions, io::Write, path::Path};
 
 pub mod track;
 pub mod track_type;
@@ -13,6 +13,7 @@ pub use track::*;
 pub use track_type::*;
 pub use wav_settings::*;
 pub use wav_writer::*;
+pub use wave::*;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Project {
@@ -40,7 +41,7 @@ impl Project {
 
     pub fn export_midi(&self) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
-        if self.tracks.iter().any(|x| x.is_type(TrackType::MIDI) == false) { return Err("Not all tracks are MIDI type.".to_string()); }
+        if self.tracks.iter().any(|x| x.is_type(TrackType::RawSamples)) { return Err("Tracks cannot be RawSamples type.".to_string()); }
 
         todo!();
     }

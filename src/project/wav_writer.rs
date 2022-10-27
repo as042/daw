@@ -1,7 +1,8 @@
 use crate::track::*;
 use super::{Project, TrackType, WavSettings};
 
-mod raw_sample_writer;
+pub mod raw_sample_writer;
+pub mod sample_conversion;
 
 use raw_sample_writer::*;
 
@@ -41,8 +42,16 @@ impl Wav {
         self.create_header(&mut vec);
 
         let mut data = vec![0; len];
+        raw_sample_data(&mut data, tracks, WavSettings { 
+            num_channels: self.NumChannels, 
+            sample_rate: self.SampleRate, 
+            bytes_per_sample: self.BitsPerSample / 8
+        });
 
-        self.raw_sample_data(&mut data, tracks);
+        vec.extend_from_slice(&data);
+
+        println!("{:?}", vec);
+        // panic!();
 
         vec
     }
