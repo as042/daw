@@ -4,13 +4,14 @@ use crate::project::resample::*;
 pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_settings: WavSettings) {
     let len = tracks.iter().map(|x| x.len()).max().unwrap();
 
-    set_initial_state(data, len, export_settings.bytes_per_sample);
-    //println!("{:?}", data);
-
     for track in tracks.iter().filter(|x| x.is_type(TrackType::RawSamples)) {
         let raw_samples = track.data.raw_samples().unwrap();
         let samples = raw_samples.samples();
         let settings = raw_samples.settings;
+
+        if settings.num_channels < export_settings.num_channels {
+            for j in (0..len).step_by(settings.bytes_per_sample * )
+        }
 
         for i in (0..len).step_by(settings.bytes_per_sample as usize) {
             let channel = i / settings.bytes_per_sample as usize % settings.num_channels; // idx of channel
@@ -19,11 +20,11 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
             if settings.num_channels < export_settings.num_channels && channel + 1 == settings.num_channels {
                 compute_raw_sample(data, samples, settings, export_settings, i);
 
-                for _ in 0..export_settings.num_channels - channel + 1 {
-                    for _ in 0..export_settings.num_channels {
-                        data.push(0);
-                    }
-                }
+                // for _ in 0..export_settings.num_channels - channel + 1 {
+                //     for _ in 0..export_settings.num_channels {
+                //         data.push(0);
+                //     }
+                // }
             }
             // channel idx is within range of export channels
             else if channel < export_settings.num_channels {
@@ -31,18 +32,6 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
             }
 
             // channel idx is outside range of export channels
-        }
-    }
-}
-
-fn set_initial_state(data: &mut Vec<u8>, len: usize, bytes_per_sample: i32) {
-    let zero_sample = f64_to_sample(0.0, bytes_per_sample);
-    // println!("{:?}", zero_sample);
-            
-    for j in (0..len).step_by(bytes_per_sample as usize) {
-        for k in 0..bytes_per_sample as usize {
-            data[j + k] = zero_sample[k];
-            //println!("{}, {}", data[j + k], zero_sample[k]);
         }
     }
 }
@@ -81,7 +70,7 @@ pub fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], settings: WavSettin
     //println!("idx: {idx}, sample2: {:?}", sample2);
     let value2 = sample_to_f64(sample2, export_settings.bytes_per_sample);
 
-    let sum = value1 + value2;
+    let sum = value1 + value2 + 0.0;
     // println!("sample1: {:?}, {value1}, {value2}, {sum}", sample);
 
     let sample = f64_to_sample(sum, export_settings.bytes_per_sample);
@@ -90,18 +79,4 @@ pub fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], settings: WavSettin
         //println!("k: {}, data: {}, sample: {}", k, data[k], sample[k - idx]);
         data[k] = sample[k - idx];
     }
-}
-
-#[cfg(test)]
-#[test]
-fn test_set_initial_state() {
-    let len = 12;
-
-    let data = &mut vec![0; len];
-
-    set_initial_state(data, len, 2);
-
-    let vec: Vec<u8> = vec![0, 128, 0, 128, 0, 128, 0, 128, 0, 128, 0, 128];
-
-    assert_eq!(*data, vec);
 }

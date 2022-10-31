@@ -12,9 +12,9 @@ fn main() {
     let track = &mut project.tracks[0];
     let data = track.data.raw_samples_mut().unwrap();
 
-    for i in 0..10 {
+    for i in 0..120000 {
         data.push_sin_sample(Wave {
-            freq: 44000.0,
+            freq: 440.0,
             amp: 0.1,
             phase_shift: 0.0}, i as f64);
     }

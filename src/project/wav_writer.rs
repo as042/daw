@@ -51,7 +51,6 @@ impl Wav {
         vec.extend_from_slice(&data);
 
         println!("{:?}", vec);
-        // panic!();
 
         vec
     }

@@ -20,16 +20,15 @@ impl RawSamples {
     }
 
     /// Calculates sin sample using given values and pushes it to self.
-    pub fn push_sin_sample(&mut self, wave: Wave, time: f64) {
+    pub fn push_sin_sample(&mut self, wave: Wave, idx: f64) {
         let freq = wave.freq;
         let amp = wave.amp;
         let phase_shift = wave.amp;
+        let time = idx / self.settings.sample_rate as f64;
 
         let value = amp * (TAU as f64 * freq * time + phase_shift).sin();
         let sample = f64_to_sample(value, self.settings.bytes_per_sample);
 
-        // println!("{value}, {:?}", sample);
-
-        self.samples.extend_from_slice(&sample);
+        self.samples.extend_from_slice(&sample[0..self.settings.bytes_per_sample as usize]);
     }
 }
