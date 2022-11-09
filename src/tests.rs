@@ -70,7 +70,7 @@ fn test_push_sin_sample() {
         data.push_sin_sample(Wave {
             freq: 440.0,
             amp: 0.1,
-            phase_shift: 0.0}, i as f64);
+            phase_shift: 0.0}, i);
     }
 
     project.export_wav(WavSettings { 
