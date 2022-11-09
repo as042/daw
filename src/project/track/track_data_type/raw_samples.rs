@@ -13,10 +13,11 @@ impl RawSamples {
         &self.samples
     }
 
-    /// Pushes the given 2-byte sample to the data twice for stereo.
+    /// Pushes the given 2-byte sample to the data.
     pub fn push_sample(&mut self, sample: &[u8; 2]) {
-        self.samples.extend_from_slice(sample);
-        self.samples.extend_from_slice(sample);
+        for k in 0..self.settings.num_channels {
+            self.samples.extend_from_slice(sample);
+        }
     }
 
     /// Calculates sin sample using given values and pushes it to self.
@@ -29,6 +30,8 @@ impl RawSamples {
         let value = amp * (TAU as f64 * freq * time + phase_shift).sin();
         let sample = f64_to_sample(value, self.settings.bytes_per_sample);
 
-        self.samples.extend_from_slice(&sample[0..self.settings.bytes_per_sample as usize]);
+        for k in 0..self.settings.num_channels {
+            self.samples.extend_from_slice(&sample[0..self.settings.bytes_per_sample]);
+        }
     }
 }

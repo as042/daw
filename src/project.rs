@@ -7,7 +7,6 @@ pub mod track_type;
 pub mod wav_settings;
 pub mod wav_writer;
 pub mod wave;
-mod resample;
 
 pub use track::*;
 pub use track_type::*;
@@ -50,9 +49,9 @@ impl Project {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
 
         let mut wav = Wav {
-            NumChannels: wav_settings.num_channels,
-            SampleRate: wav_settings.sample_rate,
-            BitsPerSample: wav_settings.bytes_per_sample * 8,
+            num_channels: wav_settings.num_channels,
+            sample_rate: wav_settings.sample_rate,
+            bits_per_sample: wav_settings.bytes_per_sample * 8,
             ..Default::default()
         };
 

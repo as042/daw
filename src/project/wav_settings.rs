@@ -2,7 +2,7 @@
 pub struct WavSettings {
     pub(crate) num_channels: usize, 
     pub(crate) sample_rate: i32, 
-    pub(crate) bytes_per_sample: i32 
+    pub(crate) bytes_per_sample: usize 
 }
 
 impl Default for WavSettings {
