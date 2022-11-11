@@ -35,8 +35,8 @@ impl RawSamples {
         }
     }
 
-    pub fn push_sin_wave(&mut self, wave: Wave, duration: f32) {
-        for k in 0..(duration * self.settings.sample_rate as f32) as i64 {
+    pub fn push_sin_wave(&mut self, wave: Wave, duration: f64) {
+        for k in 0..(duration * self.settings.sample_rate as f64) as i64 {
             self.push_sin_sample(wave, k);
         }
     }

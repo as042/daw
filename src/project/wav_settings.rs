@@ -1,8 +1,14 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct WavSettings {
-    pub(crate) num_channels: usize, 
-    pub(crate) sample_rate: i32, 
-    pub(crate) bytes_per_sample: usize 
+    pub num_channels: usize, 
+    pub sample_rate: i32, 
+    pub bytes_per_sample: usize 
+}
+
+impl WavSettings {
+    pub fn block_align(&self) -> usize {
+        self.num_channels * self.bytes_per_sample
+    }
 }
 
 impl Default for WavSettings {

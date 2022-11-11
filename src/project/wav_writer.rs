@@ -31,12 +31,16 @@ impl Wav {
     // only works for WAV tracks!
     pub(in crate::project) fn create_wav(&mut self, project: &Project) -> Vec<u8> {
         let tracks = &project.tracks;
-        let len = tracks.iter().map(|x| x.len()).max().unwrap();
-        let sample_len = len / self.block_align as usize;
 
-        self.subchunk2_size = sample_len * self.block_align as usize;
-        self.chunk_size = 36 + self.subchunk2_size;
         self.block_align = self.num_channels * (self.bits_per_sample / 8);
+
+        let track_len = tracks.iter().map(|x| x.len()).max().unwrap();
+        let longest_track = tracks.iter().find(|x| x.len() == track_len).unwrap();
+        let track_settings = longest_track.data.raw_samples().unwrap().settings;
+        let len = track_len * self.block_align / track_settings.block_align();
+
+        self.subchunk2_size = len;
+        self.chunk_size = 36 + self.subchunk2_size;
         self.byte_rate = self.sample_rate * self.block_align as i32;
         
         let mut vec = Vec::default();

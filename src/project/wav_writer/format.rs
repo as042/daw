@@ -86,6 +86,21 @@ fn test_match_bytes_per_sample() {
     });
 
     assert_eq!(output, vec![128, 0, 0, 128, 128, 128]);
+
+    let vec = vec![0, 128, 0, 0, 0, 128, 255, 129];
+
+    let output = match_bytes_per_sample(&vec, WavSettings { 
+        num_channels: 2,  
+        bytes_per_sample: 2,
+        ..Default::default()
+    },
+    WavSettings { 
+        num_channels: 2,  
+        bytes_per_sample: 1,
+        ..Default::default()
+    });
+
+    assert_eq!(output, vec![0, 128, 0, 1]);
 }
 
 #[cfg(test)]
@@ -139,4 +154,19 @@ fn test_format_samples() {
     });
 
     assert_eq!(output, vec![46, 0, 23, 1, 0, 0, 0, 0]);
+
+    let vec = vec![46, 0, 23, 1, 0, 0, 0, 0];
+
+    let output = format_samples(&vec, WavSettings { 
+        num_channels: 4,  
+        bytes_per_sample: 2,
+        ..Default::default()
+    },
+    WavSettings { 
+        num_channels: 2,  
+        bytes_per_sample: 4,
+        ..Default::default()
+    });
+
+    assert_eq!(output, vec![0, 0, 46, 0, 0, 0, 23, 1]);
 }

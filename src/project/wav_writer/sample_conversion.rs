@@ -10,7 +10,10 @@ pub fn sample_to_f64(sample: [u8; 8], bytes_per_sample: usize) -> f64 {
 pub fn f64_to_sample(value: f64, bytes_per_sample: usize) -> [u8; 8] {
     let sample_max = 2_f64.powf(bytes_per_sample as f64 * 8.0);
 
-    let int = (value * 0.5 * sample_max) as i64;
+    let mut int = (value * 0.5 * sample_max) as i64;
+    if bytes_per_sample == 1 { // I have LITERALLY ZERO idea why this is required but it is
+        int = ((value + 0.5) * 0.5 * sample_max) as i64;
+    } 
 
     int.to_le_bytes()
 }
