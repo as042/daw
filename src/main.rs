@@ -12,8 +12,7 @@ fn main() {
     let mut project = Project::new();
 
     project.new_track(TrackType::RawSamples);
-    let track = &mut project.tracks[0];
-    let data = track.data.raw_samples_mut().unwrap();
+    let data = project.track(TrackType::RawSamples, 0).unwrap().data.raw_samples_mut().unwrap();
 
     data.push_sin_wave(Wave {
         freq: 261.63,

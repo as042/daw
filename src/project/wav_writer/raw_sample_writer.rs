@@ -24,6 +24,7 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
     }
 }
 
+// should break this up into 2 functions!
 pub fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], settings: WavSettings, export_settings: WavSettings, i: usize) {
     let value1 = sample_to_f64(sample, export_settings.bytes_per_sample);
 

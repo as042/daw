@@ -31,7 +31,7 @@ impl RawSamples {
         let sample = f64_to_sample(value, self.settings.bytes_per_sample);
 
         for k in 0..self.settings.num_channels {
-            self.samples.extend_from_slice(&sample[0..self.settings.bytes_per_sample]);
+            self.samples.extend_from_slice(&sample[0..self.settings.bytes_per_sample]); // should make this call push sample!
         }
     }
 
@@ -39,5 +39,9 @@ impl RawSamples {
         for k in 0..(duration * self.settings.sample_rate as f64) as i64 {
             self.push_sin_sample(wave, k);
         }
+    }
+
+    pub fn add_sin_wav(&mut self, wave: Wave, offset: f64, duration: f64) {
+
     }
 }

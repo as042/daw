@@ -38,6 +38,21 @@ impl Project {
         self.tracks.push(track);
     }
 
+    pub fn track(&mut self, track_type: TrackType, rank: usize) -> Result<&mut Track, String> {
+        let mut count = 0;
+        for k in 0..self.tracks.len() {
+            if self.tracks[k].is_type(track_type) {
+                if count == rank {
+                    return Ok(&mut self.tracks[k]);
+                }
+
+                count += 1;
+            }
+        }
+
+        Err("Cannot find specific track.".to_string())
+    }
+
     pub fn export_midi(&self) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
         if self.tracks.iter().any(|x| x.is_type(TrackType::RawSamples)) { return Err("Tracks cannot be RawSamples type.".to_string()); }
