@@ -15,7 +15,7 @@ fn multiple_tracks() {
         phase_shift: 0.0}, 1.0);
 
     project.new_track(TrackType::RawSamples);
-    let data = project.track(TrackType::RawSamples, 0).unwrap().data.raw_samples_mut().unwrap();
+    let data = project.track(TrackType::RawSamples, 1).unwrap().data.raw_samples_mut().unwrap();
 
     data.push_sin_wave(Wave {
         freq: 329.63,
@@ -23,7 +23,7 @@ fn multiple_tracks() {
         phase_shift: 0.0}, 1.0);
 
     project.new_track(TrackType::RawSamples);
-    let data = project.track(TrackType::RawSamples, 0).unwrap().data.raw_samples_mut().unwrap();
+    let data = project.track(TrackType::RawSamples, 2).unwrap().data.raw_samples_mut().unwrap();
 
     data.push_sin_wave(Wave {
         freq: 392.0,
