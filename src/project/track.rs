@@ -1,32 +1,42 @@
 use super::track_type::*;
 
-pub mod track_data_type;
+pub mod track_data;
 
-pub use track_data_type::*;
+pub use track_data::*;
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct Track {
-    pub(crate) data: TrackDataType
+pub struct Track<T: TrackData + Default> {
+    pub data: T
 }
 
-impl Track {
-    pub(crate) fn is_type(&self, track_type: TrackType) -> bool {
+impl<T: TrackData + Default> Track<T> {
+    pub fn is_type(&self, track_type: TrackType) -> bool {
         self.data.is_type(track_type)
     }
 
-    pub(crate) fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         let data = &self.data;
 
-        if let Ok(raw_samples) = data.raw_samples() {
-            return raw_samples.samples().len();
-        }
-        else if let Ok(score) = data.score() {
-            return score.samples().len();
-        }
-        else if let Ok(midi) = data.midi() {
-            return midi.samples().len();
-        }
-
-        0
+        return match self.data.get_type() {
+            TrackType::RawSamples => self.data.raw_samples().samples().len(),
+            TrackType::Score => 0,
+            TrackType::MIDI => 0
+        };
     }
 }
+
+// impl Track<RawSamples> {
+//     pub fn new() -> Track<RawSamples> {
+//         Track { data: RawSamples::default() }
+//     }
+// }
+// impl Track<Score> {
+//     pub fn new() -> Track<Score> {
+//         Track { data: Score::default() }
+//     }
+// }
+// impl Track<MIDI> {
+//     pub fn new() -> Track<MIDI> {
+//         Track { data: MIDI::default() }
+//     }
+// }

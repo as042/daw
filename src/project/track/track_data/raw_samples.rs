@@ -1,6 +1,8 @@
 use std::f32::consts::TAU;
 
-use crate::project::{WavSettings, wave::Wave, sample_conversion::f64_to_sample};
+use crate::project::{WavSettings, wave::Wave, sample_conversion::f64_to_sample, TrackType};
+
+use super::TrackData;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RawSamples {
@@ -40,4 +42,30 @@ impl RawSamples {
             self.push_sin_sample(wave, k);
         }
     }
+}
+
+impl TrackData for RawSamples {
+    fn get_type(&self) -> TrackType {
+        TrackType::RawSamples
+    }
+
+    fn is_type(&self, track_type: TrackType) -> bool {
+        if track_type == TrackType::RawSamples {
+            return true;
+        }
+
+        false
+    }
+
+    fn raw_samples(&self) -> &RawSamples {
+        &self
+    }
+    fn raw_samples_mut(&mut self) -> &mut RawSamples {
+        &mut self
+    }
+
+    fn score(&self) -> &super::Score { panic!("Incorrect type."); }
+    fn midi(&self) -> &super::MIDI { panic!("Incorrect type."); }
+    fn score_mut(&mut self) -> &mut super::Score { panic!("Incorrect type."); }
+    fn midi_mut(&mut self) -> &mut super::MIDI { panic!("Incorrect type."); }
 }

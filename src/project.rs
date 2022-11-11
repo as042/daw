@@ -1,6 +1,6 @@
 #![allow(dead_code, non_snake_case)]
 
-use std::{fs::OpenOptions, io::Write, path::Path};
+use std::{fs::OpenOptions, io::Write, path::Path, default};
 
 pub mod track;
 pub mod track_type;
@@ -15,27 +15,25 @@ pub use wav_writer::*;
 pub use wave::*;
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct Project {
-    pub tracks: Vec<Track>
+pub struct Project<T: TrackData + Default> {
+    pub tracks: Vec<Track<T>>
 }
 
-impl Project {
+impl<T: TrackData + Default> Project<T> {
     pub fn new() -> Self {
         Self { tracks: Vec::default() }
     }
 
     pub fn new_track(&mut self, track_type: TrackType) {
-        let mut track = Track {
-            data: TrackDataType::default()
-        };
-
-        track.data = match track_type {
-            TrackType::RawSamples => TrackDataType::RawSamples(RawSamples::default()),
-            TrackType::Score => TrackDataType::Score(Score::default()),
-            TrackType::MIDI => TrackDataType::MIDI(MIDI::default())
-        };
-
-        self.tracks.push(track);
+        if track_type == TrackType::RawSamples {
+            self.tracks.push(Track::<T>::default());
+        }
+        else if track_type == TrackType::Score {
+            self.tracks.push(track);
+        }
+        else if track_type == TrackType::MIDI {
+            self.tracks.push(track);
+        }        
     }
 
     pub fn export_midi(&self) -> Result<(), String> {

@@ -1,8 +1,8 @@
 use super::{*, sample_conversion::*, resample::*, format::*};
 
-pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_settings: WavSettings) {
+pub(super) fn raw_sample_data<T: TrackData + Default>(data: &mut Vec<u8>, tracks: &Vec<Track<T>>, export_settings: WavSettings) {
     for track in tracks.iter().filter(|x| x.is_type(TrackType::RawSamples)) {
-        let raw_samples = track.data.raw_samples().unwrap();
+        let raw_samples = track.data.raw_samples();
         let samples = raw_samples.samples();
         let settings = raw_samples.settings;
 
