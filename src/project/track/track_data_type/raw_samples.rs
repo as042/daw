@@ -29,7 +29,7 @@ impl RawSamples {
 
         let value = amp * (TAU as f64 * freq * time + phase_shift).sin();
         let sample = f64_to_sample(value, self.settings.bytes_per_sample);
-
+       
         self.push_sample(sample);
     }
 
@@ -41,12 +41,22 @@ impl RawSamples {
     }
 
     pub fn add_sample(&mut self, sample: [u8; 8], idx: usize) {
+        for j in self.samples.len()..(idx * self.settings.block_align() + 8) {
+            self.samples.push(0); // sus
+        }
+
         let mut sample2 = [0; 8];
-        for k in 0..8 {
+        for k in 0..self.settings.bytes_per_sample {
             sample2[k] = self.samples[idx * self.settings.block_align() + k];
         }
 
         let sum = add_samples(sample, sample2, self.settings.bytes_per_sample);
+        println!("1: {:?}, 2: {:?}, {sum}", sample, sample2);
+        let final_sample = f64_to_sample(sum, self.settings.bytes_per_sample);
+
+        for k in 0..self.settings.num_channels {
+            self.samples.extend_from_slice(&final_sample[0..self.settings.bytes_per_sample]);
+        }
     }
 
     pub fn add_sin_sample(&mut self, wave: Wave, idx: usize) {
@@ -57,11 +67,12 @@ impl RawSamples {
 
         let value = amp * (TAU as f64 * freq * time + phase_shift).sin();
         let sample1 = f64_to_sample(value, self.settings.bytes_per_sample);
+        // println!("{value}, {:?}", sample1);
 
         self.add_sample(sample1, idx);
     }
 
-    pub fn add_sin_wav(&mut self, wave: Wave, offset: f64, duration: f64) {
+    pub fn add_sin_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
         for k in 0..(duration * self.settings.sample_rate as f64) as usize {
             self.add_sin_sample(wave, k);
         }
