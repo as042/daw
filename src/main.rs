@@ -1,8 +1,4 @@
 #![allow(dead_code, unused_imports, unused_variables)]
-
-#[cfg(test)]
-mod unit_tests;
-#[cfg(test)]
 mod tests;
 mod project;
 
@@ -12,7 +8,7 @@ fn main() {
     let mut project = Project::new();
 
     project.new_track(TrackType::RawSamples);
-    let data = project.track(TrackType::RawSamples, 0).unwrap().data.raw_samples_mut().unwrap();
+    let data = project.track(TrackType::RawSamples, 0).uw().data.raw_samples_mut().uw();
 
     data.add_sin_wave(Wave {
         freq: 100000.0,
@@ -27,5 +23,5 @@ fn main() {
     project.export_wav(WavSettings { 
         num_channels: 2, 
         sample_rate: 44100, 
-        bytes_per_sample: 2}, "test.wav").unwrap();
+        bytes_per_sample: 2}, "test.wav").uw();
 }

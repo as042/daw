@@ -51,7 +51,7 @@ impl RawSamples {
         }
 
         let sum = add_samples(sample, sample2, self.settings.bytes_per_sample);
-        println!("1: {:?}, 2: {:?}, {sum}", sample, sample2);
+        //println!("1: {:?}, 2: {:?}, {sum}", sample, sample2);
         let final_sample = f64_to_sample(sum, self.settings.bytes_per_sample);
 
         for k in 0..self.settings.num_channels {

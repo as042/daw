@@ -1,6 +1,7 @@
 #![allow(dead_code, non_snake_case)]
 
 use std::{fs::OpenOptions, io::Write, path::Path};
+pub use method_shorthands::{better_unwrap::*, better_expect::*, better_to_string::*};
 
 pub mod track;
 pub mod track_type;
@@ -50,18 +51,18 @@ impl Project {
             }
         }
 
-        Err("Cannot find specific track.".to_string())
+        Err("Cannot find specific track.".ts())
     }
 
     pub fn export_midi(&self) -> Result<(), String> {
-        if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
-        if self.tracks.iter().any(|x| x.is_type(TrackType::RawSamples)) { return Err("Tracks cannot be RawSamples type.".to_string()); }
+        if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".ts()); }
+        if self.tracks.iter().any(|x| x.is_type(TrackType::RawSamples)) { return Err("Tracks cannot be RawSamples type.".ts()); }
 
         todo!();
     }
 
     pub fn export_wav(&self, wav_settings: WavSettings, path: impl AsRef<Path>) -> Result<(), String> {
-        if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".to_string()); }
+        if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".ts()); }
 
         let mut wav = Wav {
             num_channels: wav_settings.num_channels,
@@ -75,9 +76,9 @@ impl Project {
         let mut file = OpenOptions::new()
             .write(true)
             .create(true)
-            .open(path).unwrap();
+            .open(path).uw();
 
-        file.write_all(&wav_vector).unwrap();
+        file.write_all(&wav_vector).uw();
 
         Ok(())
     }
