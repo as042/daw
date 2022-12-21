@@ -1,4 +1,5 @@
 use std::f32::consts::TAU;
+pub use method_shorthands::methods::*;
 
 use crate::project::{WavSettings, wave::Wave, sample_conversion::f64_to_sample, raw_sample_writer::add_samples};
 

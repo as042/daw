@@ -1,5 +1,6 @@
 use std::mem::discriminant;
 use enum_as_inner::EnumAsInner;
+use method_shorthands::*;
 use crate::project::track_type::*;
 
 pub mod raw_samples;
@@ -24,46 +25,46 @@ impl Default for TrackDataType {
 impl TrackDataType {
     pub fn raw_samples(&self) -> Result<&RawSamples, String> {
         if self.is_type(TrackType::RawSamples) {
-            return Ok(self.as_raw_samples().unwrap())
+            return Ok(self.as_raw_samples().uw())
         }
 
-        Err("Track is not of type RawSamples.".to_string())
+        Err("Track is not of type RawSamples.".ts())
     }
     pub fn score(&self) -> Result<&Score, String> {
         if self.is_type(TrackType::Score) {
-            return Ok(self.as_score().unwrap())
+            return Ok(self.as_score().uw())
         }
 
-        Err("Track is not of type Score.".to_string())
+        Err("Track is not of type Score.".ts())
     }
     pub fn midi(&self) -> Result<&MIDI, String> {
         if self.is_type(TrackType::MIDI) {
-            return Ok(self.as_midi().unwrap())
+            return Ok(self.as_midi().uw())
         }
 
-        Err("Track is not of type MIDI.".to_string())
+        Err("Track is not of type MIDI.".ts())
     }
 
     pub fn raw_samples_mut(&mut self) -> Result<&mut RawSamples, String> {
         if self.is_type(TrackType::RawSamples) {
-            return Ok(self.as_raw_samples_mut().unwrap())
+            return Ok(self.as_raw_samples_mut().uw())
         }
 
-        Err("Track is not of type RawSamples.".to_string())
+        Err("Track is not of type RawSamples.".ts())
     }
     pub fn score_mut(&mut self) -> Result<&mut Score, String> {
         if self.is_type(TrackType::Score) {
-            return Ok(self.as_score_mut().unwrap())
+            return Ok(self.as_score_mut().uw())
         }
 
-        Err("Track is not of type Score.".to_string())
+        Err("Track is not of type Score.".ts())
     }
     pub fn midi_mut(&mut self) -> Result<&mut MIDI, String> {
         if self.is_type(TrackType::MIDI) {
-            return Ok(self.as_midi_mut().unwrap())
+            return Ok(self.as_midi_mut().uw())
         }
 
-        Err("Track is not of type MIDI.".to_string())
+        Err("Track is not of type MIDI.".ts())
     }
 
     pub(crate) fn is_type(&self, track_type: TrackType) -> bool {

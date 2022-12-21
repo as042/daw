@@ -13,7 +13,7 @@ fn main() {
     data.add_sin_wave(Wave {
         freq: 100000.0,
         amp: 0.2,
-        phase_shift: 0.0}, 0.0, 0.001);
+        phase_shift: 0.0}, 0.0, 1.0);
 
     data.push_sin_wave(Wave {
         freq: 392.0,
