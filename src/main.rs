@@ -10,15 +10,15 @@ fn main() {
     project.new_track(TrackType::RawSamples);
     let data = project.track(TrackType::RawSamples, 0).uw().data.raw_samples_mut().uw();
 
-    data.add_sin_wave(Wave {
-        freq: 100000.0,
-        amp: 0.2,
-        phase_shift: 0.0}, 0.0, 1.0);
-
     data.push_sin_wave(Wave {
         freq: 392.0,
-        amp: 0.2,
+        amp: 0.001,
         phase_shift: 0.0}, 1.0);
+
+    data.add_sin_wave(Wave {
+        freq: 262.0,
+        amp: 0.001,
+        phase_shift: 0.0}, 0.5, 1.5);
 
     project.export_wav(WavSettings { 
         num_channels: 2, 
