@@ -45,7 +45,7 @@ fn match_num_channels(samples: &Vec<u8>, settings: WavSettings, export_settings:
             output.extend_from_slice(&sample[0..export_settings.bytes_per_sample]);
         }
         if channel_idx + 1 == settings.num_channels && settings.num_channels < export_settings.num_channels {
-            for l in 0..((export_settings.num_channels - settings.num_channels) * export_settings.bytes_per_sample) {
+            for _ in 0..((export_settings.num_channels - settings.num_channels) * export_settings.bytes_per_sample) {
                 output.push(0);
             }
         }

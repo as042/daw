@@ -6,15 +6,15 @@ pub use track_data_type::*;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Track {
-    pub(crate) data: TrackDataType
+    pub data: TrackDataType
 }
 
 impl Track {
-    pub(crate) fn is_type(&self, track_type: TrackType) -> bool {
+    pub fn is_type(&self, track_type: TrackType) -> bool {
         self.data.is_type(track_type)
     }
 
-    pub(crate) fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         let data = &self.data;
 
         if let Ok(raw_samples) = data.raw_samples() {

@@ -15,12 +15,12 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
                 sample[k] = final_samples[i + k];
             }
 
-            write_raw_sample(data, sample, settings, export_settings, i);
+            write_raw_sample(data, sample, export_settings, i);
         }
     }
 }
 
-pub fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], settings: WavSettings, export_settings: WavSettings, i: usize) {
+pub fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], export_settings: WavSettings, i: usize) {
     let mut sample2 = [0; 8];
     for k in 0..export_settings.bytes_per_sample {
         sample2[k] = data[i + k];

@@ -16,14 +16,14 @@ impl RawSamples {
 
     /// Pushes the given sample to the data.
     pub fn push_sample(&mut self, sample: [u8; 8]) {
-        for k in 0..self.settings.num_channels {
+        for _ in 0..self.settings.num_channels {
             self.samples.extend_from_slice(&sample[0..self.settings.bytes_per_sample]);
         }
     }
     /// Adds the given sample to the data.
     pub fn add_sample(&mut self, sample: [u8; 8], idx: usize) {
         let idx = idx * self.settings.block_align();
-        for j in self.samples.len()..(idx + 8) {
+        for _ in self.samples.len()..(idx + 8) {
             self.samples.push(0);
         }
 
@@ -156,6 +156,60 @@ impl RawSamples {
     pub fn add_sawtooth_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
         for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
             let sample = self.sawtooth_sample(wave, k);
+            self.add_sample(sample, k);
+        }
+    }
+
+
+    /// Creates a sine-to-a-power sample from wave data.
+    pub fn sinpow_sample(&mut self, wave: Wave, idx: usize, pow: f64) -> [u8; 8] {
+        let freq = wave.freq;
+        let amp = wave.amp;
+        let phase_shift = wave.amp;
+        let time = idx as f64 / self.settings.sample_rate as f64;
+
+        let value;
+        if pow as i64 % 2 == 0 {
+            value = 2.0 * amp * (TAU as f64 * freq * time + phase_shift).sin().powf(pow) - amp;
+        }
+        else {
+            value = amp * (TAU as f64 * freq * time + phase_shift).sin().powf(pow);
+        }
+        let mut sample = f64_to_sample(value, self.settings.bytes_per_sample);
+        for k in self.settings.bytes_per_sample..8 {
+            sample[k] = 0;
+        }
+
+        sample
+    }
+
+    /// Adds a triangletooth wave to the existing data.
+    pub fn add_triangletooth_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+        for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
+            let sample = self.sawtooth_sample(wave, k);
+            self.add_sample(sample, k);
+            let sample = self.triangle_sample(wave, k);
+            self.add_sample(sample, k);
+        }
+    }
+    /// Adds a sine-to-the-power-of-2 wave to the existing data.
+    pub fn add_sinsquared_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+        for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
+            let sample = self.sinpow_sample(wave, k, 2.0);
+            self.add_sample(sample, k);
+        }
+    }
+    /// Adds a sine-to-the-power-of-3 wave to the existing data.
+    pub fn add_sincubed_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+        for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
+            let sample = self.sinpow_sample(wave, k, 3.0);
+            self.add_sample(sample, k);
+        }
+    }
+    /// Adds a sine-to-the-power-of-4 wave to the existing data.
+    pub fn add_sinhypercubed_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+        for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
+            let sample = self.sinpow_sample(wave, k, 4.0);
             self.add_sample(sample, k);
         }
     }
