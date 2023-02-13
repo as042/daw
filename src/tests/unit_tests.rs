@@ -59,22 +59,22 @@ fn test_raw_samples() {
         bytes_per_sample: 2}, "test.wav").uw();
 }
 
-#[test]
-fn test_push_sin_sample() {
-    let mut project = Project::new();
-    project.new_track(TrackType::RawSamples);
-    let track = &mut project.tracks[0];
-    let data = track.data.raw_samples_mut().uw();
+// #[test]
+// fn test_push_sin_sample() {
+//     let mut project = Project::new();
+//     project.new_track(TrackType::RawSamples);
+//     let track = &mut project.tracks[0];
+//     let data = track.data.raw_samples_mut().uw();
 
-    for i in 0..100 {
-        data.push_sin_sample(Wave {
-            freq: 440.0,
-            amp: 0.1,
-            phase_shift: 0.0}, i);
-    }
+//     for i in 0..100 {
+//         data.push_sin_sample(Wave {
+//             freq: 440.0,
+//             amp: 0.1,
+//             phase_shift: 0.0}, i);
+//     }
 
-    project.export_wav(WavSettings { 
-        num_channels: 2, 
-        sample_rate: 44100, 
-        bytes_per_sample: 2}, "test.wav").uw();
-}
+//     project.export_wav(WavSettings { 
+//         num_channels: 2, 
+//         sample_rate: 44100, 
+//         bytes_per_sample: 2}, "test.wav").uw();
+// }

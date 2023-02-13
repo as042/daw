@@ -20,7 +20,6 @@ impl RawSamples {
             self.samples.extend_from_slice(&sample[0..self.settings.bytes_per_sample]);
         }
     }
-
     /// Adds the given sample to the data.
     pub fn add_sample(&mut self, sample: [u8; 8], idx: usize) {
         let idx = idx * self.settings.block_align();
@@ -30,7 +29,7 @@ impl RawSamples {
 
         let mut sample2 = [0; 8]; // prolly needs to account for offset
         for k in 0..self.settings.bytes_per_sample {
-            sample2[k] = self.samples[idx];
+            sample2[k] = self.samples[idx + k];
         }
 
         let sum = add_samples(sample, sample2, self.settings.bytes_per_sample);
@@ -58,6 +57,51 @@ impl RawSamples {
 
         sample
     }
+    /// Creates a triangle sample from wave data.
+    pub fn triangle_sample(&mut self, wave: Wave, idx: usize) -> [u8; 8] {
+        let freq = wave.freq;
+        let amp = wave.amp;
+        let phase_shift = wave.amp;
+        let time = idx as f64 / self.settings.sample_rate as f64;
+
+        let value = 4.0 * amp * freq * ((time - phase_shift / freq).rem_euclid(1.0 / freq) - 1.0 / (freq * 2.0)).abs() - amp; // phase shift might be wrong
+        let mut sample = f64_to_sample(value, self.settings.bytes_per_sample);
+        for k in self.settings.bytes_per_sample..8 {
+            sample[k] = 0;
+        }
+
+        sample
+    }
+    /// Creates a square sample from wave data.
+    pub fn square_sample(&mut self, wave: Wave, idx: usize) -> [u8; 8] {
+        let freq = wave.freq;
+        let amp = wave.amp;
+        let phase_shift = wave.amp;
+        let time = idx as f64 / self.settings.sample_rate as f64;
+
+        let value = amp * (TAU as f64 * freq * time + phase_shift).sin().signum();
+        let mut sample = f64_to_sample(value, self.settings.bytes_per_sample);
+        for k in self.settings.bytes_per_sample..8 {
+            sample[k] = 0;
+        }
+
+        sample
+    }
+    /// Creates a sawtooth sample from wave data.
+    pub fn sawtooth_sample(&mut self, wave: Wave, idx: usize) -> [u8; 8] {
+        let freq = wave.freq;
+        let amp = wave.amp;
+        let phase_shift = wave.amp;
+        let time = idx as f64 / self.settings.sample_rate as f64;
+
+        let value = 2.0 * amp * ((time - phase_shift) * freq - f64::floor(0.5 + (time - phase_shift) * freq));
+        let mut sample = f64_to_sample(value, self.settings.bytes_per_sample);
+        for k in self.settings.bytes_per_sample..8 {
+            sample[k] = 0;
+        }
+
+        sample
+    }
 
     /// Pushes a sine wave to the data.
     pub fn push_sin_wave(&mut self, wave: Wave, duration: f64) {
@@ -66,11 +110,52 @@ impl RawSamples {
             self.push_sample(sample);
         }
     }
-
     /// Adds a sine wave to the existing data.
     pub fn add_sin_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
         for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
             let sample = self.sin_sample(wave, k);
+            self.add_sample(sample, k);
+        }
+    }
+    /// Pushes a triangle wave to the data.
+    pub fn push_triangle_wave(&mut self, wave: Wave, duration: f64) {
+        for k in 0..(duration * self.settings.sample_rate as f64) as usize {
+            let sample = self.triangle_sample(wave, k);
+            self.push_sample(sample);
+        }
+    }
+    /// Adds a triangle wave to the existing data.
+    pub fn add_triangle_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+        for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
+            let sample = self.triangle_sample(wave, k);
+            self.add_sample(sample, k);
+        }
+    }
+    /// Pushes a square wave to the data.
+    pub fn push_square_wave(&mut self, wave: Wave, duration: f64) {
+        for k in 0..(duration * self.settings.sample_rate as f64) as usize {
+            let sample = self.square_sample(wave, k);
+            self.push_sample(sample);
+        }
+    }
+    /// Adds a square wave to the existing data.
+    pub fn add_square_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+        for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
+            let sample = self.square_sample(wave, k);
+            self.add_sample(sample, k);
+        }
+    }
+    /// Pushes a sawtooth wave to the data.
+    pub fn push_sawtooth_wave(&mut self, wave: Wave, duration: f64) {
+        for k in 0..(duration * self.settings.sample_rate as f64) as usize {
+            let sample = self.sawtooth_sample(wave, k);
+            self.push_sample(sample);
+        }
+    }
+    /// Adds a sawtooth wave to the existing data.
+    pub fn add_sawtooth_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+        for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
+            let sample = self.sawtooth_sample(wave, k);
             self.add_sample(sample, k);
         }
     }
