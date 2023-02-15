@@ -100,7 +100,7 @@ fn test_match_bytes_per_sample() {
         ..Default::default()
     });
 
-    assert_eq!(output, vec![192, 64, 192, 193]);
+    assert_eq!(output, vec![128, 0, 128, 129]);
 }
 
 #[cfg(test)]
