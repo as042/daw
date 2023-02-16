@@ -6,7 +6,7 @@ fn multiple_tracks() {
     let mut project = Project::new();
 
     project.new_track(TrackType::RawSamples);
-    let data = project.track(TrackType::RawSamples, 0).uw().data.raw_samples_mut().uw();
+    let data = project.track(TrackType::RawSamples, 0).uw().raw_samples_mut();
 
     data.push_sin_wave(Wave {
         freq: 261.63,
@@ -14,7 +14,7 @@ fn multiple_tracks() {
         phase_shift: 0.0}, 1.0);
 
     project.new_track(TrackType::RawSamples);
-    let data = project.track(TrackType::RawSamples, 1).uw().data.raw_samples_mut().uw();
+    let data = project.track(TrackType::RawSamples, 1).uw().raw_samples_mut();
 
     data.push_sin_wave(Wave {
         freq: 329.63,
@@ -22,7 +22,7 @@ fn multiple_tracks() {
         phase_shift: 0.0}, 1.0);
 
     project.new_track(TrackType::RawSamples);
-    let data = project.track(TrackType::RawSamples, 2).uw().data.raw_samples_mut().uw();
+    let data = project.track(TrackType::RawSamples, 2).uw().raw_samples_mut();
 
     data.push_sin_wave(Wave {
         freq: 392.0,

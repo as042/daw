@@ -1,11 +1,12 @@
-use crate::project::track::*;
-use super::{Project, TrackType, WavSettings};
-
 pub mod raw_sample_writer;
 pub mod sample_conversion;
 mod format;
 mod resample;
 
+pub use method_shorthands::methods::UW;
+
+use crate::project::track::*;
+use super::{Project, TrackType, WavSettings};
 use raw_sample_writer::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -36,7 +37,7 @@ impl Wav {
 
         let track_len = tracks.iter().map(|x| x.len()).max().uw();
         let longest_track = tracks.iter().find(|x| x.len() == track_len).uw();
-        let track_settings = longest_track.data.raw_samples().uw().settings;
+        let track_settings = longest_track.raw_samples().settings;
         let len = track_len * self.block_align / track_settings.block_align();
 
         self.subchunk2_size = len;

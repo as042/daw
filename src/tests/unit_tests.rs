@@ -33,7 +33,7 @@ fn test_raw_samples() {
     project.new_track(TrackType::RawSamples);
     project.new_track(TrackType::RawSamples);
     let track1 = &mut project.tracks[0];
-    let data = track1.data.raw_samples_mut().uw();
+    let data = track1.raw_samples_mut();
 
     for _ in 0..22050 {
         data.push_sample(1.0);
@@ -43,7 +43,7 @@ fn test_raw_samples() {
     }
 
     let track2 = &mut project.tracks[1];
-    let data = track2.data.raw_samples_mut().uw();
+    let data = track2.raw_samples_mut();
 
     for _ in 0..22050 {
         data.push_sample(1.0);

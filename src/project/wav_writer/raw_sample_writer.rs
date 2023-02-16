@@ -2,7 +2,7 @@ use super::{*, sample_conversion::*, resample::*, format::*};
 
 pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_settings: WavSettings) {
     for track in tracks.iter().filter(|x| x.is_type(TrackType::RawSamples)) {
-        let raw_samples = track.data.raw_samples().uw();
+        let raw_samples = track.raw_samples();
         let samples = raw_samples.samples();
         let settings = raw_samples.settings;
 
@@ -20,7 +20,7 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
     }
 }
 
-pub fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], export_settings: WavSettings, i: usize) {
+fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], export_settings: WavSettings, i: usize) {
     let mut sample2 = [0; 8];
     for k in 0..export_settings.bytes_per_sample {
         sample2[k] = data[i + k];
