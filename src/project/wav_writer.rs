@@ -34,11 +34,7 @@ impl Wav {
         let tracks = &project.tracks;
 
         self.block_align = self.num_channels * (self.bits_per_sample / 8);
-
-        let track_len = tracks.iter().map(|x| x.len()).max().uw();
-        let longest_track = tracks.iter().find(|x| x.len() == track_len).uw();
-        let track_settings = longest_track.raw_samples().settings;
-        let len = track_len * self.block_align / track_settings.block_align();
+        let len = tracks.iter().map(|x| x.len()).max().uw() * self.bits_per_sample / 16 * self.num_channels;
 
         self.subchunk2_size = len;
         self.chunk_size = 36 + self.subchunk2_size;

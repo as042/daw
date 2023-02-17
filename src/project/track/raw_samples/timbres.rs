@@ -64,7 +64,7 @@ impl RawSamples {
         Self::set_max_amp(&mut vec, wave.amp);
         self.add(vec, offset);
     }
-        /// Adds timbre3 to the existing data.
+    /// Adds timbre3 to the existing data.
     pub fn add_timbre3(&mut self, wave: Wave, offset: f64, duration: f64) {
         let mut vec = self.new_sin_wav(Wave { freq: wave.freq, amp: 1.0, phase_shift: wave.phase_shift }, duration);
         Self::pow(&mut vec, 7.0);

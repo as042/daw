@@ -8,26 +8,26 @@ fn multiple_tracks() {
     project.new_track(TrackType::RawSamples);
     let data = project.track(TrackType::RawSamples, 0).uw().raw_samples_mut();
 
-    data.push_sin_wave(Wave {
+    data.add_sin_wave(Wave {
         freq: 261.63,
         amp: 0.2,
-        phase_shift: 0.0}, 1.0);
+        phase_shift: 0.0}, 0.0, 1.0);
 
     project.new_track(TrackType::RawSamples);
     let data = project.track(TrackType::RawSamples, 1).uw().raw_samples_mut();
 
-    data.push_sin_wave(Wave {
+    data.add_sin_wave(Wave {
         freq: 329.63,
         amp: 0.1,
-        phase_shift: 0.0}, 1.0);
+        phase_shift: 0.0}, 0.0, 1.0);
 
     project.new_track(TrackType::RawSamples);
     let data = project.track(TrackType::RawSamples, 2).uw().raw_samples_mut();
 
-    data.push_sin_wave(Wave {
+    data.add_sin_wave(Wave {
         freq: 392.0,
         amp: 0.1,
-        phase_shift: 0.0}, 1.0);
+        phase_shift: 0.0}, 0.0, 1.0);
 
     project.export_wav(WavSettings { 
         num_channels: 2, 

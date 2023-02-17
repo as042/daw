@@ -1,10 +1,11 @@
 pub mod basic_waveforms;
 pub mod modifiers;
 pub mod timbres;
+pub mod modulators;
 
 pub use method_shorthands::methods::*;
 
-use crate::{project::{WavSettings, sample_conversion::f64_to_sample}, prelude::{sample_conversion::sample_to_f64, TrackData, TrackType}};
+use crate::{project::WavSettings, prelude::{TrackData, TrackType}};
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RawSamples {
@@ -48,36 +49,17 @@ impl RawSamples {
         &self.samples
     }
 
-    /// Pushes the given sample to the data.
-    pub fn push_sample(&mut self, sample: f64) {
-        for _ in 0..self.settings.num_channels {
-            self.samples.extend_from_slice(&f64_to_sample(sample, self.settings.bytes_per_sample)[0..self.settings.bytes_per_sample]);
-        }
-    }
     /// Adds the given sample to the data.
     pub fn add_sample(&mut self, sample: f64, idx: usize) {
-        let idx = idx * self.settings.block_align();
-
-        for _ in 0..idx as i32 + 8 - self.samples.len() as i32 {
-            let zero_sample = f64_to_sample(0.0, self.settings.bytes_per_sample);
-            for k in 0..self.settings.bytes_per_sample {
-                self.samples.push(zero_sample[k]); // spam 0s to prevent index errors
-            }
+        for _ in 0..idx as i32 * self.settings.num_channels as i32 + self.settings.num_channels as i32 - self.samples.len() as i32 {
+            self.samples.push(0.0);
         }
 
-        let mut sample2 = [0; 8];
-        for k in 0..self.settings.bytes_per_sample {
-            sample2[k] = self.samples[idx + k];
-        }
-
-        let sum = sample + sample_to_f64(sample2, self.settings.bytes_per_sample);
-        //println!("sample: {:?}, sample2: {:?}, sum: {}", sample, sample2, sum);
-        let final_sample = f64_to_sample(sum, self.settings.bytes_per_sample);
+        let sample2 = self.samples[idx * self.settings.num_channels];
+        let sum = sample + sample2;
 
         for j in 0..self.settings.num_channels {
-            for k in (idx + j * self.settings.bytes_per_sample..idx + self.settings.bytes_per_sample + j * self.settings.bytes_per_sample).enumerate() {
-                self.samples[k.1] = final_sample[k.0];
-            }
+            self.samples[idx * self.settings.num_channels + j] = sum;
         }
     }
     // Adds the input to the data.
@@ -87,10 +69,11 @@ impl RawSamples {
         }
     }
 
-    /// Pushes a constant to the data.
+    #[deprecated]
+    /// Pushes a constant to the data. Not recommended.
     pub fn push_const(&mut self, amp: f64, duration: f64) {
         for _ in 0..(duration * self.settings.sample_rate as f64) as usize {
-            self.push_sample(amp);
+            self.samples.push(amp);
         }
     }
     /// Adds a constant to the existing data.

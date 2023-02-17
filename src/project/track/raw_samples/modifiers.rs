@@ -3,10 +3,6 @@ use rustfft::{num_complex::Complex, FftPlanner, num_traits::Zero};
 use super::RawSamples;
 
 impl RawSamples {
-    /// Sets the first buffer to the sum of both buffers.
-    pub fn add_buffers(buffer: &mut Vec<f64>, other_buffer: &mut Vec<f64>) {
-        *buffer = buffer.iter().enumerate().map(|s| s.1 + other_buffer[s.0]).collect();
-    }
     /// Takes each sample to the power given. Be careful with even powers as they tend to double the frequency and mess up the y displacement.
     pub fn pow(buffer: &mut Vec<f64>, pow: f64) {
         *buffer = buffer.iter().map(|s| s.powf(pow)).collect();

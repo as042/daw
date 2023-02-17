@@ -36,20 +36,20 @@ fn test_raw_samples() {
     let data = track1.raw_samples_mut();
 
     for _ in 0..22050 {
-        data.push_sample(1.0);
-        data.push_sample(1.0);
-        data.push_sample(1.0);
-        data.push_sample(1.0);
+        data.add_sample(1.0, 0);
+        data.add_sample(1.0, 1);
+        data.add_sample(1.0, 2);
+        data.add_sample(1.0, 4);
     }
 
     let track2 = &mut project.tracks[1];
     let data = track2.raw_samples_mut();
 
     for _ in 0..22050 {
-        data.push_sample(1.0);
-        data.push_sample(1.0);
-        data.push_sample(1.0);
-        data.push_sample(1.0);
+        data.add_sample(1.0, 0);
+        data.add_sample(1.0, 1);
+        data.add_sample(1.0, 2);
+        data.add_sample(1.0, 4);
     }
 
     project.export_wav(WavSettings { 

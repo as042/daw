@@ -1,4 +1,4 @@
-use super::{*, sample_conversion::*, resample::*, format::*};
+use super::{*, sample_conversion::*, resample::*, format::match_num_channels};
 
 pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_settings: WavSettings) {
     for track in tracks.iter().filter(|x| x.is_type(TrackType::RawSamples)) {
@@ -6,8 +6,9 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
         let samples = raw_samples.samples();
         let settings = raw_samples.settings;
 
-        let formatted_samples = format_samples(samples, settings, export_settings);
-        let final_samples = resample(&formatted_samples, settings.sample_rate, export_settings);
+        let binary_samples = change_f64_to_sample(samples, export_settings.bytes_per_sample);
+        let resamples = resample(&binary_samples, settings.sample_rate, export_settings);
+        let final_samples = match_num_channels(resamples, settings.num_channels, export_settings);
 
         for i in (0..final_samples.len()).step_by(export_settings.bytes_per_sample) {
             let mut sample = [0; 8];
@@ -20,18 +21,27 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
     }
 }
 
-fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], export_settings: WavSettings, i: usize) {
+fn change_f64_to_sample(samples: &Vec<f64>, bytes_per_sample: usize) -> Vec<u8> {
+    let mut output = vec![];
+    for k in 0..samples.len() {
+        output.extend_from_slice(&f64_to_sample(samples[k], bytes_per_sample)[0..bytes_per_sample]);
+    }
+
+    output
+}
+
+fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], export_settings: WavSettings, idx: usize) {
     let mut sample2 = [0; 8];
     for k in 0..export_settings.bytes_per_sample {
-        sample2[k] = data[i + k];
+        sample2[k] = data[idx + k];
     }
     
     let sum = add_samples(sample, sample2, export_settings.bytes_per_sample);
     
     let sample = f64_to_sample(sum, export_settings.bytes_per_sample);
 
-    for k in i..(i + export_settings.bytes_per_sample) {
-        data[k] = sample[k - i];
+    for k in idx..(idx + export_settings.bytes_per_sample) {
+        data[k] = sample[k - idx];
     }
 }
 
