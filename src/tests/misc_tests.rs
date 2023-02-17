@@ -1,4 +1,4 @@
-use daw::project::{wav_writer, Project, TrackType, UW, Wave, WavSettings};
+use crate::project::{wav_writer, Project, TrackType, UW, Wave, WavSettings};
 use wav_writer::raw_sample_writer::*;
 
 #[test]

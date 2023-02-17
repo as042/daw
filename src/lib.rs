@@ -1,6 +1,8 @@
 pub mod project;
 pub mod note_freqs;
+#[allow(dead_code, unused_imports, unused_variables)]
+mod tests;
 
 pub mod prelude {
-    pub use crate::{project::*, note_freqs::*};
+    pub use crate::{project::{*, raw_samples::*}, note_freqs::*};
 }

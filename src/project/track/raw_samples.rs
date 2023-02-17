@@ -8,7 +8,7 @@ use crate::{project::{WavSettings, sample_conversion::f64_to_sample}, prelude::{
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RawSamples {
-    samples: Vec<u8>,
+    samples: Vec<f64>,
     pub settings: WavSettings
 }
 
@@ -44,7 +44,7 @@ impl TrackData for RawSamples {
 }
 
 impl RawSamples {
-    pub fn samples(&self) -> &Vec<u8> {
+    pub fn samples(&self) -> &Vec<f64> {
         &self.samples
     }
 
@@ -64,7 +64,6 @@ impl RawSamples {
                 self.samples.push(zero_sample[k]); // spam 0s to prevent index errors
             }
         }
-
 
         let mut sample2 = [0; 8];
         for k in 0..self.settings.bytes_per_sample {

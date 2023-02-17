@@ -1,23 +1,20 @@
-use std::f64::consts::TAU;
 use rustfft::{num_complex::Complex, FftPlanner, num_traits::Zero};
 
-use crate::prelude::Wave;
 use super::RawSamples;
 
 impl RawSamples {
-    /// Creates a sine-to-a-power sample from wave data.
-    pub fn sin_pow_sample(&self, wave: Wave, idx: usize, pow: f64) -> f64 {
-        let freq = wave.freq;
-        let amp = wave.amp;
-        let phase_shift = wave.amp;
-        let time = idx as f64 / self.settings.sample_rate as f64;
-
-        return if pow as i64 % 2 == 0 {
-            2.0 * amp * (0.5 * TAU as f64 * freq * time + phase_shift).sin().powf(pow) - amp
-        }
-        else {
-            amp * (TAU as f64 * freq * time + phase_shift).sin().powf(pow)
-        }
+    /// Sets the first buffer to the sum of both buffers.
+    pub fn add_buffers(buffer: &mut Vec<f64>, other_buffer: &mut Vec<f64>) {
+        *buffer = buffer.iter().enumerate().map(|s| s.1 + other_buffer[s.0]).collect();
+    }
+    /// Takes each sample to the power given. Be careful with even powers as they tend to double the frequency and mess up the y displacement.
+    pub fn pow(buffer: &mut Vec<f64>, pow: f64) {
+        *buffer = buffer.iter().map(|s| s.powf(pow)).collect();
+    }
+    /// Scales the data so that the highest magnitude amplitude is equal to the given amplitude.
+    pub fn set_max_amp(buffer: &mut Vec<f64>, amp: f64) {
+        let max_amp = buffer.iter().fold(0_f64, |a, s| a.abs().max(s.abs()));
+        *buffer = buffer.iter().map(|s| s * amp / max_amp).collect();
     }
 
     fn fft(buffer: &mut Vec<Complex<f64>>) {
@@ -32,7 +29,7 @@ impl RawSamples {
 
         fft.process(buffer);
 
-        *buffer = buffer.iter().map(|s| Complex::new(s.re / buffer.len() as f64, s.im)).collect();
+        *buffer = buffer.iter().map(|s| Complex::new(2.0 * s.re / buffer.len() as f64, s.im)).collect();
     }
 
     /// Low-pass filter. Filters out high frequencies, letting the low ones pass.
