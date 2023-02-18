@@ -1,7 +1,7 @@
 use std::f64::consts::TAU;
 
 use crate::prelude::Wave;
-use super::RawSamples;
+use super::{RawSamples, channels::Channels};
 
 impl RawSamples {
     /// Creates a sine sample from wave data.
@@ -42,10 +42,10 @@ impl RawSamples {
     }
 
     /// Adds a sine wave to the existing data.
-    pub fn add_sin_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+    pub fn add_sin_wave(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
         for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
             let sample = self.sin_sample(wave, k);
-            self.add_sample(sample, k);
+            self.add_sample(sample, k, channels);
         }
     }
     /// Creates a sine wave buffer.
@@ -58,10 +58,10 @@ impl RawSamples {
         buffer
     }
     /// Adds a triangle wave to the existing data.
-    pub fn add_triangle_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+    pub fn add_triangle_wave(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
         for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
             let sample = self.triangle_sample(wave, k);
-            self.add_sample(sample, k);
+            self.add_sample(sample, k, channels);
         }
     }
     /// Creates a triangle wave buffer.
@@ -74,10 +74,10 @@ impl RawSamples {
         buffer
     }
     /// Adds a square wave to the existing data.
-    pub fn add_square_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+    pub fn add_square_wave(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
         for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
             let sample = self.square_sample(wave, k);
-            self.add_sample(sample, k);
+            self.add_sample(sample, k, channels);
         }
     }
     /// Creates a square wave buffer.
@@ -90,10 +90,10 @@ impl RawSamples {
         buffer
     }
     /// Adds a sawtooth wave to the existing data.
-    pub fn add_sawtooth_wave(&mut self, wave: Wave, offset: f64, duration: f64) {
+    pub fn add_sawtooth_wave(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
         for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
             let sample = self.sawtooth_sample(wave, k);
-            self.add_sample(sample, k);
+            self.add_sample(sample, k, channels);
         }
     }
     /// Creates a sawtooth wave buffer.

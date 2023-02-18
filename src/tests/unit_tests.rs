@@ -1,4 +1,4 @@
-use crate::project::{wav_writer, Project, TrackType, UW, Wave, WavSettings};
+use crate::{project::{wav_writer, Project, TrackType, UW, Wave, WavSettings}, prelude::channels::Channels};
 use wav_writer::raw_sample_writer::*;
 
 #[test]
@@ -36,20 +36,19 @@ fn test_raw_samples() {
     let data = track1.raw_samples_mut();
 
     for _ in 0..22050 {
-        data.add_sample(1.0, 0);
-        data.add_sample(1.0, 1);
-        data.add_sample(1.0, 2);
-        data.add_sample(1.0, 4);
+        data.add_sample(1.0, 0, Channels::None);
+        data.add_sample(1.0, 1, Channels::None);
+        data.add_sample(1.0, 2, Channels::None);
+        data.add_sample(1.0, 4, Channels::None);
     }
-
     let track2 = &mut project.tracks[1];
     let data = track2.raw_samples_mut();
 
     for _ in 0..22050 {
-        data.add_sample(1.0, 0);
-        data.add_sample(1.0, 1);
-        data.add_sample(1.0, 2);
-        data.add_sample(1.0, 4);
+        data.add_sample(1.0, 0, Channels::None);
+        data.add_sample(1.0, 1, Channels::None);
+        data.add_sample(1.0, 2, Channels::None);
+        data.add_sample(1.0, 4, Channels::None);
     }
 
     project.export_wav(WavSettings { 

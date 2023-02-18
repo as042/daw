@@ -3,6 +3,10 @@ use rustfft::{num_complex::Complex, FftPlanner, num_traits::Zero};
 use super::RawSamples;
 
 impl RawSamples {
+    pub fn fade(buffer: &mut Vec<f64>, fade_out: bool) {
+        *buffer = buffer.iter().enumerate().map(|s| s.1 * (fade_out as i32 as f64 - s.0 as f64 / buffer.len() as f64)).collect();
+    }
+
     /// Takes each sample to the power given. Be careful with even powers as they tend to double the frequency and mess up the y displacement.
     pub fn pow(buffer: &mut Vec<f64>, pow: f64) {
         *buffer = buffer.iter().map(|s| s.powf(pow)).collect();

@@ -2,10 +2,14 @@ pub mod basic_waveforms;
 pub mod modifiers;
 pub mod timbres;
 pub mod modulators;
+pub mod channels;
+
+use std::mem::discriminant;
 
 pub use method_shorthands::methods::*;
 
 use crate::{project::WavSettings, prelude::{TrackData, TrackType}};
+use self::channels::Channels;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RawSamples {
@@ -50,7 +54,7 @@ impl RawSamples {
     }
 
     /// Adds the given sample to the data.
-    pub fn add_sample(&mut self, sample: f64, idx: usize) {
+    pub fn add_sample(&mut self, sample: f64, idx: usize, channels: Channels) {
         for _ in 0..idx as i32 * self.settings.num_channels as i32 + self.settings.num_channels as i32 - self.samples.len() as i32 {
             self.samples.push(0.0);
         }
@@ -59,13 +63,18 @@ impl RawSamples {
         let sum = sample + sample2;
 
         for j in 0..self.settings.num_channels {
-            self.samples[idx * self.settings.num_channels + j] = sum;
+            if channels == Channels::All || 
+                channels == Channels::Just(j) ||
+                (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
+            {
+                self.samples[idx * self.settings.num_channels + j] = sum;
+            }
         }
     }
     // Adds the input to the data.
-    pub fn add(&mut self, input: Vec<f64>, offset: f64) {
+    pub fn add(&mut self, input: Vec<f64>, channels: Channels, offset: f64) {
         for k in 0..input.len() {
-            self.add_sample(input[k], k + (offset * self.settings.sample_rate as f64) as usize);
+            self.add_sample(input[k], k + (offset * self.settings.sample_rate as f64) as usize, channels);
         }
     }
 
@@ -77,9 +86,9 @@ impl RawSamples {
         }
     }
     /// Adds a constant to the existing data.
-    pub fn add_const(&mut self, amp: f64, offset: f64, duration: f64) {
+    pub fn add_const(&mut self, amp: f64, channels: Channels, offset: f64, duration: f64) {
         for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
-            self.add_sample(amp, k);
+            self.add_sample(amp, k, channels);
         }
     }
     /// Creates a constant buffer.
