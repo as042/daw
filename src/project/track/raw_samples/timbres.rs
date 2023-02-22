@@ -1,6 +1,6 @@
 use std::f64::consts::TAU;
 
-use crate::prelude::Wave;
+use crate::prelude::{Wave, fade::*};
 use super::{RawSamples, channels::Channels};
 
 impl RawSamples {
@@ -56,34 +56,14 @@ impl RawSamples {
         self.low_pass(&mut vec, wave.freq * 3.1);
         self.add(vec, channels, offset);
     }
-    /// Adds timbre2 to the existing data.
-    pub fn add_timbre2(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
-        let mut vec = self.new_sawtooth_wav(Wave { freq: wave.freq, amp: 1.0, phase_shift: wave.phase_shift }, duration);
-        self.low_pass(&mut vec, wave.freq * 2.1);
-        Self::pow(&mut vec, 3.0);
-        Self::set_max_amp(&mut vec, wave.amp);
-        self.add(vec, channels, offset);
-    }
-    /// Adds timbre3 to the existing data.
-    pub fn add_timbre3(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
-        let mut vec = self.new_sin_wav(Wave { freq: wave.freq, amp: 1.0, phase_shift: wave.phase_shift }, duration);
-        Self::pow(&mut vec, 7.0);
-        Self::set_max_amp(&mut vec, wave.amp);
-        self.add(vec, channels, offset);
 
-            // let mut vec2 = self.new_sawtooth_wav(Wave { freq: wave.freq, amp: 1.0, phase_shift: wave.phase_shift }, duration);
-            // Self::pow(&mut vec2, 9.0);
-
-            // let mut vec3 = vec.iter().enumerate().map(|s| s.1 + vec2[s.0]).collect();
-
-            // self.low_pass(&mut vec3, wave.freq * 3.1);
-            // Self::set_max_amp(&mut vec3, wave.amp);
-            // self.add(vec3, offset)
-    }
-    /// Adds test to the existing data.
-    pub fn add_test(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
-        let mut vec = self.new_sawtooth_wav(Wave { freq: wave.freq, amp: 0.2, phase_shift: wave.phase_shift }, duration);
-        Self::set_max_amp(&mut vec, wave.amp);
+    /// Adds note1 to the existing data.
+    pub fn add_note1(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
+        let note_duration = duration - 0.03;
+        let mut vec = self.new_sawtooth_wav(wave, note_duration);
+        self.low_pass(&mut vec, wave.freq * 3.1);
+        RawSamples::fade(&mut vec, vec![Fade::new(0.0, 0.01, FadeType::Power(2.0), false, 44100), Fade::new(note_duration - 0.01, 0.01, FadeType::Power(2.0), true, 44100)]);
         self.add(vec, channels, offset);
+        self.add_const(0.0, channels, offset + duration - 0.01, 0.01)
     }
 }

@@ -4,5 +4,5 @@ pub mod note_freqs;
 mod tests;
 
 pub mod prelude {
-    pub use crate::{project::{*, raw_samples::*}, note_freqs::*};
+    pub use crate::{project::{*, raw_samples::{*, channels::*, modifiers::*, fade::*}}, note_freqs::*};
 }

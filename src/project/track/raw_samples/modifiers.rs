@@ -1,15 +1,54 @@
+use std::mem::discriminant;
 use rustfft::{num_complex::Complex, FftPlanner, num_traits::Zero};
 
-use super::RawSamples;
+use super::{RawSamples, fade::*, channels::*};
 
 impl RawSamples {
-    pub fn fade(buffer: &mut Vec<f64>, fade_out: bool) {
-        *buffer = buffer.iter().enumerate().map(|s| s.1 * (fade_out as i32 as f64 - s.0 as f64 / buffer.len() as f64)).collect();
+    pub fn reverb(&mut self, channels: Channels, offset: f64, duration: f64, reverb_len: f64) {
+        for k in 0..(duration / reverb_len) as usize - 2 {
+            let sample_vec = 
+                self.samples[
+                    ((offset + k as f64 * reverb_len) * self.settings.sample_rate as f64) as usize..
+                    ((offset + (k + 1) as f64 * reverb_len) * self.settings.sample_rate as f64) as usize].to_vec();
+            self.add(sample_vec, channels, offset + (k + 2) as f64 * reverb_len);
+        }
+    }
+
+    pub fn fade(buffer: &mut Vec<f64>, fades: Vec<Fade>) {
+        for fade in fades {
+            let mut pow = 1.0;
+            if let FadeType::Power(exp) = fade.fade_type {
+                pow = exp;
+            }
+            else if let FadeType::NegPower(exp) = fade.fade_type {
+                pow = exp;
+            }
+
+            *buffer = buffer.iter().enumerate()
+                .map(|s| 
+                    if (fade.start..fade.end).contains(&s.0) { 
+                        // NegPower
+                        if discriminant(&fade.fade_type) == discriminant(&FadeType::NegPower(0.0)) {
+                            if fade.fade_out { 
+                                s.1 * (1.0 - ((s.0 as f64 - fade.start as f64) / fade.len() as f64).powf(pow))
+                            } 
+                            else { s.1 * (1.0 - ((s.0 as f64 - fade.start as f64 - fade.len() as f64) / fade.len() as f64).powf(pow)) } 
+                        }
+                        // Power
+                        else {
+                            if fade.fade_out { 
+                                s.1 * ((s.0 as f64 - fade.start as f64 - fade.len() as f64) / fade.len() as f64).powf(pow)
+                            } 
+                            else { s.1 * ((s.0 as f64 - fade.start as f64) / fade.len() as f64).powf(pow) } 
+                        }
+                    } 
+                    else { *s.1 }).collect();
+        }
     }
 
     /// Takes each sample to the power given. Be careful with even powers as they tend to double the frequency and mess up the y displacement.
     pub fn pow(buffer: &mut Vec<f64>, pow: f64) {
-        *buffer = buffer.iter().map(|s| s.powf(pow)).collect();
+        *buffer = buffer.iter_mut().map(|s| s.powf(pow)).collect();
     }
     /// Scales the data so that the highest magnitude amplitude is equal to the given amplitude.
     pub fn set_max_amp(buffer: &mut Vec<f64>, amp: f64) {

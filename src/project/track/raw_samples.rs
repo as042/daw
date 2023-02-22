@@ -3,9 +3,9 @@ pub mod modifiers;
 pub mod timbres;
 pub mod modulators;
 pub mod channels;
+pub mod fade;
 
 use std::mem::discriminant;
-
 pub use method_shorthands::methods::*;
 
 use crate::{project::WavSettings, prelude::{TrackData, TrackType}};
@@ -59,14 +59,13 @@ impl RawSamples {
             self.samples.push(0.0);
         }
 
-        let sample2 = self.samples[idx * self.settings.num_channels];
-        let sum = sample + sample2;
-
         for j in 0..self.settings.num_channels {
             if channels == Channels::All || 
                 channels == Channels::Just(j) ||
                 (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
             {
+                let sample2 = self.samples[idx * self.settings.num_channels + j];
+                let sum = sample + sample2;
                 self.samples[idx * self.settings.num_channels + j] = sum;
             }
         }
