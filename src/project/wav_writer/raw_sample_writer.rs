@@ -1,12 +1,16 @@
+use std::vec;
+
 use super::{*, sample_conversion::*, resample::*, format::match_num_channels};
 
+// Handles the various conversions of the data needed to prepare it for writing
 pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_settings: WavSettings) {
     for track in tracks.iter().filter(|x| x.is_type(TrackType::RawSamples)) {
         let raw_samples = track.raw_samples();
         let samples = raw_samples.samples();
         let settings = raw_samples.settings;
 
-        let binary_samples = change_f64_to_sample(samples, export_settings.bytes_per_sample);
+        let one_vec = change_array_to_vec(samples, export_settings.num_channels);
+        let binary_samples = change_f64_to_sample(&one_vec, export_settings.bytes_per_sample);
         let resamples = resample(&binary_samples, settings.sample_rate, export_settings);
         let final_samples = match_num_channels(resamples, settings.num_channels, export_settings);
 
@@ -21,6 +25,19 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
     }
 }
 
+// Collapse the array of vecs into one vec
+fn change_array_to_vec(samples: &[Vec<f64>; 8], export_num_channels: usize) -> Vec<f64> {
+    let mut vec = vec![];
+    for j in 0..samples[0].len() {
+        for k in 0..export_num_channels {
+            vec.push(samples[k][j]);
+        }
+    }
+
+    vec
+}
+
+// Convert all of the floats into binary samples
 fn change_f64_to_sample(samples: &Vec<f64>, bytes_per_sample: usize) -> Vec<u8> {
     let mut output = vec![];
     for k in 0..samples.len() {
@@ -30,6 +47,7 @@ fn change_f64_to_sample(samples: &Vec<f64>, bytes_per_sample: usize) -> Vec<u8> 
     output
 }
 
+// Write the raw samples to the data
 fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], export_settings: WavSettings, idx: usize) {
     let mut sample2 = [0; 8];
     for k in 0..export_settings.bytes_per_sample {
@@ -45,6 +63,7 @@ fn write_raw_sample(data: &mut Vec<u8>, sample: [u8; 8], export_settings: WavSet
     }
 }
 
+// Add two samples together
 pub fn add_samples(sample1: [u8; 8], sample2: [u8; 8], bytes_per_sample: usize) -> f64 {
     let value1 = sample_to_f64(sample1, bytes_per_sample);
     let value2 = sample_to_f64(sample2, bytes_per_sample);

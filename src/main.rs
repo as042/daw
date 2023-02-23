@@ -42,7 +42,8 @@ fn main() {
         phase_shift: 0.0,
     }, Channels::All, 1.75, 1.25);
 
-    data.reverb(Channels::All, 0.15, 0.9, 72.5, 0.0, 3.0);
+    data.reverb(Channels::All, 0.15, 0.9, 5.5, 0.0, 3.0);
+    data.set_average_amp(Channels::All, 0.1, 0.0, 3.0);
 
     project.export_wav(WavSettings { 
         num_channels: 2, 

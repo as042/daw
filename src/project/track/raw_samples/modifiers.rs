@@ -1,6 +1,8 @@
 use std::mem::discriminant;
 use rustfft::{num_complex::Complex, FftPlanner, num_traits::Zero};
 
+use crate::prelude::Channels;
+
 use super::{RawSamples, fade::*};
 
 impl RawSamples {
@@ -33,6 +35,25 @@ impl RawSamples {
                         }
                     } 
                     else { *s.1 }).collect();
+        }
+    }
+
+    pub fn set_average_amp(&mut self, channels: Channels, amp: f64, offset: f64, duration: f64) {
+        for j in 0..self.settings.num_channels {
+            if channels == Channels::All || 
+                channels == Channels::Just(j) ||
+                (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
+            {
+                let range = (offset * self.settings.sample_rate as f64) as usize..
+                    ((offset + duration) * self.settings.sample_rate as f64) as usize;
+                let mut vec = self.samples[j][range.clone()].to_vec();
+                
+                let avg_amp = vec.iter().fold(0.0, |acc, s| acc + s.abs()) / vec.len() as f64;
+                let factor = amp / avg_amp;
+                vec.iter_mut().for_each(|s| *s *= factor);
+
+                self.samples[j].splice(range, vec);
+            }
         }
     }
 

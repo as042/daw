@@ -1,36 +1,24 @@
 use std::mem::discriminant;
 
 use crate::prelude::Channels;
-use super::{RawSamples, fade::*};
+use super::RawSamples;
 
 impl RawSamples {
     pub fn reverb(&mut self, channels: Channels, delay: f64, decay_factor: f64, mix_percent: f64, offset: f64, duration: f64) {
-        let range = (offset * self.settings.sample_rate as f64 * self.settings.num_channels as f64) as usize..
-            ((offset + duration) * self.settings.sample_rate as f64 * self.settings.num_channels as f64) as usize;
-
-        let mut samples = self.samples[range.clone()].to_vec();
-
         for j in 0..self.settings.num_channels {
             if channels == Channels::All || 
                 channels == Channels::Just(j) ||
                 (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
             {
-                let mut vec: Vec<f64> = samples.iter().enumerate()
-                    .filter(|s| s.0 % self.settings.num_channels == j )
-                    .map(|(_, s)| *s).collect();
+                let range = (offset * self.settings.sample_rate as f64) as usize..
+                    ((offset + duration) * self.settings.sample_rate as f64) as usize;
+                let mut vec = self.samples[j][range.clone()].to_vec();
                 
                 Self::reverb_vec(&mut vec, delay, decay_factor, mix_percent, self.settings.sample_rate);
 
-                for k in 0..samples.len() {
-                    if k % self.settings.num_channels == j
-                    {
-                        samples[k] = vec[k / self.settings.num_channels];
-                    }
-                }
+                self.samples[j].splice(range, vec);
             }
         }
-    
-        self.samples.splice(range, samples);
     }
 
     pub fn reverb_vec(buffer: &mut Vec<f64>, delay: f64, decay_factor: f64, mix_percent: f64, sample_rate: i32) {
@@ -95,20 +83,6 @@ impl RawSamples {
             value = (value + (current_value - value)) / max;
     
             buffer[k] = value;
-        }
-    }
-
-    #[deprecated]
-    pub fn echo(&mut self, channels: Channels, offset: f64, duration: f64, reverb_len: f64) {
-        for k in 0..(duration / reverb_len) as usize - 2 {
-            println!("{k}, {}, {}", ((offset + k as f64 * reverb_len) * self.settings.sample_rate as f64) as usize, ((offset + (k + 1) as f64 * reverb_len) * self.settings.sample_rate as f64) as usize);
-            let mut sample_vec = 
-                self.samples[
-                    ((offset + k as f64 * reverb_len) * self.settings.sample_rate as f64) as usize..
-                    ((offset + (k + 1) as f64 * reverb_len) * self.settings.sample_rate as f64) as usize].to_vec();
-            sample_vec = sample_vec.iter().map(|s| s * 0.8).collect();
-            Self::fade(&mut sample_vec, vec![Fade::new(0.0, reverb_len, FadeType::Linear, true, self.settings.sample_rate)]);
-            self.add(sample_vec, channels, offset + (k as f64 + 1.5) * reverb_len);
         }
     }
 }

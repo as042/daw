@@ -71,7 +71,7 @@ impl Track {
 
     pub fn len(&self) -> usize {
         if self.is_type(TrackType::RawSamples) {
-            return self.data.raw_samples().samples().len();
+            return self.data.raw_samples().samples()[0].len();
         }
         else if self.is_type(TrackType::MIDI) {
             return self.data.midi().notes().len();

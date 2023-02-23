@@ -14,7 +14,7 @@ use self::channels::Channels;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RawSamples {
-    samples: Vec<f64>,
+    samples: [Vec<f64>; 8],
     pub settings: WavSettings
 }
 
@@ -50,14 +50,17 @@ impl TrackData for RawSamples {
 }
 
 impl RawSamples {
-    pub fn samples(&self) -> &Vec<f64> {
+    pub fn samples(&self) -> &[Vec<f64>; 8] {
         &self.samples
     }
 
     /// Adds the given sample to the data.
     pub fn add_sample(&mut self, sample: f64, idx: usize, channels: Channels) {
-        for _ in 0..idx as i32 * self.settings.num_channels as i32 + self.settings.num_channels as i32 - self.samples.len() as i32 {
-            self.samples.push(0.0);
+        // Pads zeros to prevent indexing out-of-bounds errors
+        for _ in 0..idx as i32 + self.settings.num_channels as i32 - self.samples[0].len() as i32 {
+            for k in 0..self.settings.num_channels {
+                self.samples[k].push(0.0);
+            }
         }
 
         for j in 0..self.settings.num_channels {
@@ -65,9 +68,9 @@ impl RawSamples {
                 channels == Channels::Just(j) ||
                 (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
             {
-                let sample2 = self.samples[idx * self.settings.num_channels + j];
+                let sample2 = self.samples[j][idx];
                 let sum = sample + sample2;
-                self.samples[idx * self.settings.num_channels + j] = sum;
+                self.samples[j][idx] = sum;
             }
         }
     }
@@ -82,7 +85,9 @@ impl RawSamples {
     /// Pushes a constant to the data. Not recommended.
     pub fn push_const(&mut self, amp: f64, duration: f64) {
         for _ in 0..(duration * self.settings.sample_rate as f64) as usize {
-            self.samples.push(amp);
+            for k in 0..self.settings.num_channels {
+                self.samples[k].push(amp);
+            }
         }
     }
     /// Adds a constant to the existing data.
