@@ -1,19 +1,9 @@
 use std::mem::discriminant;
 use rustfft::{num_complex::Complex, FftPlanner, num_traits::Zero};
 
-use super::{RawSamples, fade::*, channels::*};
+use super::{RawSamples, fade::*};
 
 impl RawSamples {
-    pub fn reverb(&mut self, channels: Channels, offset: f64, duration: f64, reverb_len: f64) {
-        for k in 0..(duration / reverb_len) as usize - 2 {
-            let sample_vec = 
-                self.samples[
-                    ((offset + k as f64 * reverb_len) * self.settings.sample_rate as f64) as usize..
-                    ((offset + (k + 1) as f64 * reverb_len) * self.settings.sample_rate as f64) as usize].to_vec();
-            self.add(sample_vec, channels, offset + (k + 2) as f64 * reverb_len);
-        }
-    }
-
     pub fn fade(buffer: &mut Vec<f64>, fades: Vec<Fade>) {
         for fade in fades {
             let mut pow = 1.0;

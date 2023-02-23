@@ -8,39 +8,36 @@ fn main() {
 
     data.add_note1(Wave {
         freq: C4,
-        amp: 0.2,
+        amp: 0.1,
         phase_shift: 0.0,
-    }, Channels::All, 0.0, 0.25);
+    }, Channels::All, 0.0, 0.5);
     data.add_note1(Wave {
-        freq: D4,
-        amp: 0.2,
+        freq: E4,
+        amp: 0.1,
         phase_shift: 0.0,
-    }, Channels::All, 0.25, 0.25);
+    }, Channels::All, 0.5, 0.5);
     data.add_note1(Wave {
-        freq: DS4,
-        amp: 0.2,
-        phase_shift: 0.0,
-    }, Channels::All, 0.5, 0.25);
-    data.add_note1(Wave {
-        freq: F4,
-        amp: 0.2,
-        phase_shift: 0.0,
-    }, Channels::All, 0.75, 0.25);
-    data.add_note1(Wave {
-        freq: D4,
-        amp: 0.2,
+        freq: G4,
+        amp: 0.1,
         phase_shift: 0.0,
     }, Channels::All, 1.0, 0.5);
     data.add_note1(Wave {
-        freq: AS3,
-        amp: 0.2,
+        freq: B4,
+        amp: 0.1,
         phase_shift: 0.0,
-    }, Channels::All, 1.5, 0.25);
+    }, Channels::All, 1.5, 0.5);
     data.add_note1(Wave {
-        freq: C4,
-        amp: 0.2,
+        freq: D4,
+        amp: 0.1,
         phase_shift: 0.0,
-    }, Channels::All, 1.75, 1.25);
+    }, Channels::All, 2.0, 0.5);
+    data.add_note1(Wave {
+        freq: F4,
+        amp: 0.1,
+        phase_shift: 0.0,
+    }, Channels::All, 2.5, 0.5);
+
+    data.reverb(Channels::All, 0.15, 0.9, 72.5, 0.0, 3.0);
 
     project.export_wav(WavSettings { 
         num_channels: 2, 
