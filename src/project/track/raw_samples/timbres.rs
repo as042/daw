@@ -59,11 +59,14 @@ impl RawSamples {
 
     /// Adds note1 to the existing data.
     pub fn add_note1(&mut self, wave: Wave, channels: Channels, offset: f64, duration: f64) {
-        let note_duration = duration - 0.03;
+        let rest_duration = -1.0 / (100.0 * duration + 20.0) + 0.05;  
+        let note_duration = duration - rest_duration;
+
         let mut vec = self.new_sawtooth_wav(wave, note_duration);
         self.low_pass(&mut vec, wave.freq * 3.1);
-        RawSamples::fade(&mut vec, vec![Fade::new(0.0, 0.01, FadeType::Power(2.0), false, 44100), Fade::new(note_duration - 0.01, 0.01, FadeType::Power(2.0), true, 44100)]);
+        RawSamples::fade(&mut vec, vec![Fade::new(0.0, 0.005, FadeType::Power(2.0), false, self.settings.sample_rate), Fade::new(note_duration - 0.005, 0.005, FadeType::Power(2.0), true, self.settings.sample_rate)]);
+        
         self.add(vec, channels, offset);
-        self.add_const(0.0, channels, offset + duration - 0.01, 0.01)
+        self.add_const(0.0, channels, offset + note_duration, rest_duration)
     }
 }

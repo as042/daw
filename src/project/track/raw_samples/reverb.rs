@@ -5,30 +5,32 @@ use super::{RawSamples, fade::*};
 
 impl RawSamples {
     pub fn reverb(&mut self, channels: Channels, delay: f64, decay_factor: f64, mix_percent: f64, offset: f64, duration: f64) {
+        let range = (offset * self.settings.sample_rate as f64 * self.settings.num_channels as f64) as usize..
+            ((offset + duration) * self.settings.sample_rate as f64 * self.settings.num_channels as f64) as usize;
+
+        let mut samples = self.samples[range.clone()].to_vec();
+
         for j in 0..self.settings.num_channels {
             if channels == Channels::All || 
                 channels == Channels::Just(j) ||
                 (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
             {
-                let mut vec: Vec<f64> = self.samples[
-                    (offset * self.settings.sample_rate as f64) as usize..
-                    ((offset + duration) * self.settings.sample_rate as f64 * self.settings.num_channels as f64) as usize].iter().enumerate()
+                let mut vec: Vec<f64> = samples.iter().enumerate()
                     .filter(|s| s.0 % self.settings.num_channels == j )
                     .map(|(_, s)| *s).collect();
                 
                 Self::reverb_vec(&mut vec, delay, decay_factor, mix_percent, self.settings.sample_rate);
 
-                for k in 0..self.samples.len() {
-                    if ((offset * self.settings.sample_rate as f64) as usize..
-                        ((offset + duration) * self.settings.sample_rate as f64) as usize).contains(&k) &&
-                        k % self.settings.num_channels == j
+                for k in 0..samples.len() {
+                    if k % self.settings.num_channels == j
                     {
-                        self.samples[2 * k + j] = vec[k];
+                        samples[k] = vec[k / self.settings.num_channels];
                     }
                 }
             }
         }
     
+        self.samples.splice(range, samples);
     }
 
     pub fn reverb_vec(buffer: &mut Vec<f64>, delay: f64, decay_factor: f64, mix_percent: f64, sample_rate: i32) {
