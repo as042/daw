@@ -1,5 +1,4 @@
-use std::vec;
-
+use raw_samples::Samples;
 use super::{*, sample_conversion::*, resample::*, format::match_num_channels};
 
 // Handles the various conversions of the data needed to prepare it for writing
@@ -9,12 +8,11 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
         let samples = raw_samples.samples();
         let settings = raw_samples.settings;
 
-        let one_vec = change_array_to_vec(samples, settings.num_channels);
+        let resamples = resample(samples, settings, export_settings);
+        let one_vec = change_array_to_vec(&resamples, settings.num_channels);
         let binary_samples = change_f64_to_sample(&one_vec, export_settings.bytes_per_sample);
-        let resamples = resample(&binary_samples, settings.sample_rate, export_settings);
-        let final_samples = match_num_channels(&resamples, settings.num_channels, export_settings);
+        let final_samples = match_num_channels(&binary_samples, settings.num_channels, export_settings);
 
-        println!("{}, {}, {}, {}, {}", samples[0].len(), one_vec.len(), binary_samples.len(), resamples.len(), final_samples.len());
         for i in (0..final_samples.len()).step_by(export_settings.bytes_per_sample) {
             let mut sample = [0; 8];
             for k in 0..export_settings.bytes_per_sample {
@@ -27,7 +25,7 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
 }
 
 // Collapse the array of vecs into one vec
-fn change_array_to_vec(samples: &[Vec<f64>; 8], num_channels: usize) -> Vec<f64> {
+fn change_array_to_vec(samples: &Samples, num_channels: usize) -> Vec<f64> {
     let mut samples = samples.clone();
 
     let len = samples.iter().map(|v| v.len()).max().uw();

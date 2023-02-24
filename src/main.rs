@@ -43,7 +43,6 @@ fn main() {
     }, Channels::All, Time::new(1.75, 1.25));
 
     data.reverb(Channels::All, 0.15, 0.6, 15.5, Time::new(0.0, 3.0));
-    data.set_average_amp(Channels::All, 0.1, Time::new(0.0, 3.0));
 
     project.export_wav(WavSettings { 
         num_channels: 2, 

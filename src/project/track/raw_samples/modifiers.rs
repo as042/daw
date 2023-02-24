@@ -5,6 +5,7 @@ use crate::prelude::{Channels, Time};
 use super::RawSamples;
 
 impl RawSamples {
+    /// Sets the average amplitude of a section of the track to the given value.
     pub fn set_average_amp(&mut self, channels: Channels, amp: f64, time: Time) {
         for j in 0..self.settings.num_channels {
             if channels == Channels::All || 

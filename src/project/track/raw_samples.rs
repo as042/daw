@@ -12,9 +12,11 @@ pub use method_shorthands::methods::*;
 use crate::{project::WavSettings, prelude::{TrackData, TrackType, Time}};
 use self::channels::Channels;
 
+pub type Samples = [Vec<f64>; 8];
+
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RawSamples {
-    samples: [Vec<f64>; 8],
+    samples: Samples,
     pub settings: WavSettings
 }
 
@@ -50,7 +52,7 @@ impl TrackData for RawSamples {
 }
 
 impl RawSamples {
-    pub fn samples(&self) -> &[Vec<f64>; 8] {
+    pub fn samples(&self) -> &Samples {
         &self.samples
     }
 

@@ -4,6 +4,7 @@ use crate::prelude::{Channels, Time};
 use super::RawSamples;
 
 impl RawSamples {
+    /// Applies reverb to a section of the track.
     pub fn reverb(&mut self, channels: Channels, delay: f64, decay_factor: f64, mix_percent: f64, time: Time) {
         for j in 0..self.settings.num_channels {
             if channels == Channels::All || 
@@ -13,10 +14,14 @@ impl RawSamples {
                 let range = (time.start * self.settings.sample_rate as f64) as usize..
                     (time.end * self.settings.sample_rate as f64) as usize;
                 let mut vec = self.samples[j][range.clone()].to_vec();
+
+                let avg_amp = vec.iter().fold(0.0, |acc, s| acc + s.abs()) / vec.len() as f64;
                 
                 Self::reverb_vec(&mut vec, delay, decay_factor, mix_percent, self.settings.sample_rate);
 
                 self.samples[j].splice(range, vec);
+
+                self.set_average_amp(Channels::Just(j), avg_amp, time);
             }
         }
     }
@@ -45,7 +50,7 @@ impl RawSamples {
         Self::all_pass_filter(buffer, sample_rate);
     }
 
-    pub fn comb_filter(buffer: &mut Vec<f64>, delay: f64, decay_factor: f64, sample_rate: i32) {
+    fn comb_filter(buffer: &mut Vec<f64>, delay: f64, decay_factor: f64, sample_rate: i32) {
         let delay_samples = (delay * sample_rate as f64) as usize;
     
         // Applying algorithm for Comb Filter
@@ -54,7 +59,7 @@ impl RawSamples {
         }
     }
 
-    pub fn all_pass_filter(buffer: &mut Vec<f64>, sample_rate: i32) {
+    fn all_pass_filter(buffer: &mut Vec<f64>, sample_rate: i32) {
         let delay_samples = (0.08927 * sample_rate as f64) as usize; // Number of delay samples. Calculated from number of samples per millisecond
         let decay_factor = 0.131;
     

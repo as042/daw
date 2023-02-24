@@ -19,6 +19,7 @@ pub enum FadeType {
 }
 
 impl RawSamples {
+    /// Applies the given fades to the inputted vector.
     pub fn fade(buffer: &mut Vec<f64>, fades: Vec<Fade>, sample_rate: i32) {
         for fade in fades {
             let mut pow = 1.0;
