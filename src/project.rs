@@ -4,6 +4,7 @@ pub mod track_type;
 pub mod wav_settings;
 pub mod wav_writer;
 pub mod wave;
+pub mod time;
 
 use std::{fs::OpenOptions, path::Path, io::Write};
 pub use method_shorthands::methods::*;

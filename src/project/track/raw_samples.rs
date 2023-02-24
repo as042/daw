@@ -9,7 +9,7 @@ pub mod reverb;
 use std::mem::discriminant;
 pub use method_shorthands::methods::*;
 
-use crate::{project::WavSettings, prelude::{TrackData, TrackType}};
+use crate::{project::WavSettings, prelude::{TrackData, TrackType, Time}};
 use self::channels::Channels;
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -91,8 +91,8 @@ impl RawSamples {
         }
     }
     /// Adds a constant to the existing data.
-    pub fn add_const(&mut self, amp: f64, channels: Channels, offset: f64, duration: f64) {
-        for k in (offset * self.settings.sample_rate as f64) as usize..((offset + duration) * self.settings.sample_rate as f64) as usize {
+    pub fn add_const(&mut self, amp: f64, channels: Channels, time: Time) {
+        for k in (time.start * self.settings.sample_rate as f64) as usize..(time.end * self.settings.sample_rate as f64) as usize {
             self.add_sample(amp, k, channels);
         }
     }

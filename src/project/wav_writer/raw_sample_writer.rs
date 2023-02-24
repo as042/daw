@@ -9,11 +9,12 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
         let samples = raw_samples.samples();
         let settings = raw_samples.settings;
 
-        let one_vec = change_array_to_vec(samples, export_settings.num_channels);
+        let one_vec = change_array_to_vec(samples, settings.num_channels);
         let binary_samples = change_f64_to_sample(&one_vec, export_settings.bytes_per_sample);
         let resamples = resample(&binary_samples, settings.sample_rate, export_settings);
-        let final_samples = match_num_channels(resamples, settings.num_channels, export_settings);
+        let final_samples = match_num_channels(&resamples, settings.num_channels, export_settings);
 
+        println!("{}, {}, {}, {}, {}", samples[0].len(), one_vec.len(), binary_samples.len(), resamples.len(), final_samples.len());
         for i in (0..final_samples.len()).step_by(export_settings.bytes_per_sample) {
             let mut sample = [0; 8];
             for k in 0..export_settings.bytes_per_sample {
@@ -26,10 +27,20 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
 }
 
 // Collapse the array of vecs into one vec
-fn change_array_to_vec(samples: &[Vec<f64>; 8], export_num_channels: usize) -> Vec<f64> {
+fn change_array_to_vec(samples: &[Vec<f64>; 8], num_channels: usize) -> Vec<f64> {
+    let mut samples = samples.clone();
+
+    let len = samples.iter().map(|v| v.len()).max().uw();
+    // Pads zeros to prevent index out-of-bounds errors
+    for k in 0..num_channels {
+        for _ in 0..len - samples[k].len() {
+            samples[k].push(0.0);
+        }
+    }
+
     let mut vec = vec![];
-    for j in 0..samples[0].len() {
-        for k in 0..export_num_channels {
+    for j in 0..len {
+        for k in 0..num_channels {
             vec.push(samples[k][j]);
         }
     }

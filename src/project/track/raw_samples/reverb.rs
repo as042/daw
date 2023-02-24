@@ -1,17 +1,17 @@
 use std::mem::discriminant;
 
-use crate::prelude::Channels;
+use crate::prelude::{Channels, Time};
 use super::RawSamples;
 
 impl RawSamples {
-    pub fn reverb(&mut self, channels: Channels, delay: f64, decay_factor: f64, mix_percent: f64, offset: f64, duration: f64) {
+    pub fn reverb(&mut self, channels: Channels, delay: f64, decay_factor: f64, mix_percent: f64, time: Time) {
         for j in 0..self.settings.num_channels {
             if channels == Channels::All || 
                 channels == Channels::Just(j) ||
                 (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
             {
-                let range = (offset * self.settings.sample_rate as f64) as usize..
-                    ((offset + duration) * self.settings.sample_rate as f64) as usize;
+                let range = (time.start * self.settings.sample_rate as f64) as usize..
+                    (time.end * self.settings.sample_rate as f64) as usize;
                 let mut vec = self.samples[j][range.clone()].to_vec();
                 
                 Self::reverb_vec(&mut vec, delay, decay_factor, mix_percent, self.settings.sample_rate);

@@ -5,7 +5,7 @@ use super::sample_conversion::*;
 #[deprecated]
 pub fn format_samples(samples: &Vec<u8>, settings: WavSettings, export_settings: WavSettings) -> Vec<u8> {
     match_num_channels(
-        match_bytes_per_sample(
+        &match_bytes_per_sample(
             samples, 
             settings, 
             export_settings),
@@ -32,7 +32,7 @@ fn match_bytes_per_sample(samples: &Vec<u8>, settings: WavSettings, export_setti
     output
 }
 
-pub(super) fn match_num_channels(samples: Vec<u8>, num_channels: usize, export_settings: WavSettings) -> Vec<u8> {
+pub(super) fn match_num_channels(samples: &Vec<u8>, num_channels: usize, export_settings: WavSettings) -> Vec<u8> {
     if num_channels == export_settings.num_channels { return samples.to_vec(); }
 
     let mut output = Vec::with_capacity(samples.len() * export_settings.num_channels / num_channels);
@@ -113,7 +113,7 @@ fn test_match_bytes_per_sample() {
 fn test_match_num_channels() {
     let vec = vec![0, 128, 0, 0, 0, 128, 0, 0];
 
-    let output = match_num_channels(vec, 2, WavSettings { 
+    let output = match_num_channels(&vec, 2, WavSettings { 
         num_channels: 3,  
         bytes_per_sample: 2,
         ..Default::default()
@@ -123,7 +123,7 @@ fn test_match_num_channels() {
 
     let vec = vec![0, 128, 0, 0, 0, 255, 0, 128, 0, 0, 255, 255];
 
-    let output = match_num_channels(vec, 3, WavSettings { 
+    let output = match_num_channels(&vec, 3, WavSettings { 
         num_channels: 2,  
         bytes_per_sample: 2,
         ..Default::default()
