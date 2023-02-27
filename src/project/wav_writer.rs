@@ -30,9 +30,10 @@ pub struct Wav {
 
 impl Wav {
     // only works for WAV tracks!
-    pub(in crate::project) fn create_wav(&mut self, project: &Project) -> Vec<u8> {
+    pub(in crate::project) fn create_wav(&mut self, project: &Project, progress_updates: bool) -> Vec<u8> {
         let tracks = &project.tracks;
 
+        if progress_updates { println!("Setting up wav header.") };
         self.block_align = self.num_channels * (self.bits_per_sample / 8);
         let len = tracks.iter().map(|x| x.size(self.bits_per_sample / 8 * self.num_channels, self.sample_rate)).max().uw();
 
@@ -44,12 +45,12 @@ impl Wav {
 
         self.create_header(&mut vec);
 
+        if progress_updates { println!("Allocating wav data.") };
         let mut data = vec![0; len];
         raw_sample_data(&mut data, tracks, WavSettings { 
             num_channels: self.num_channels, 
             sample_rate: self.sample_rate, 
-            bytes_per_sample: self.bits_per_sample as usize / 8
-        });
+            bytes_per_sample: self.bits_per_sample as usize / 8}, progress_updates);
 
         vec.extend_from_slice(&data);
 

@@ -24,7 +24,7 @@ fn test_export_wav() {
     project.export_wav(WavSettings { 
         num_channels: 2, 
         sample_rate: 44100, 
-        bytes_per_sample: 2}, "test.wav").uw();
+        bytes_per_sample: 2}, "test.wav", false).uw();
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn test_raw_samples() {
     project.export_wav(WavSettings { 
         num_channels: 2, 
         sample_rate: 44100, 
-        bytes_per_sample: 2}, "test.wav").uw();
+        bytes_per_sample: 2}, "test.wav", false).uw();
 }
 
 // #[test]

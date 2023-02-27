@@ -19,12 +19,13 @@ use self::track::{raw_samples::RawSamples, score::Score, midi::MIDI};
 
 #[derive(Clone, Default, PartialEq, Debug)]
 pub struct Project {
-    pub tracks: Vec<Track>
+    pub tracks: Vec<Track>,
+    progress_updates: bool
 }
 
 impl Project {
     pub fn new() -> Self {
-        Self { tracks: Vec::default() }
+        Self::default()
     }
 
     pub fn new_track(&mut self, track_type: TrackType) -> &mut Track {
@@ -64,8 +65,11 @@ impl Project {
         todo!();
     }
 
-    pub fn export_wav(&self, wav_settings: WavSettings, path: impl AsRef<Path>) -> Result<(), String> {
+    /// Export Project to .wav file
+    pub fn export_wav(&self, wav_settings: WavSettings, path: impl AsRef<Path>, progress_updates: bool) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".ts()); }
+
+        if progress_updates { println!("Initializing wav data.") };
 
         let mut wav = Wav {
             num_channels: wav_settings.num_channels,
@@ -74,25 +78,32 @@ impl Project {
             ..Default::default()
         };
 
-        let wav_vector = wav.create_wav(self);
+        let wav_vector = wav.create_wav(self, progress_updates);
+
+        if progress_updates { println!("Creating or opening wav file.") };
 
         let mut file = OpenOptions::new()
             .write(true)
             .create(true)
             .open(path).uw();
 
+        if progress_updates { println!("Writing data to wav file.") };
+
         file.write_all(&wav_vector).uw();
+
+        if progress_updates { println!("Operation successful.") };
 
         Ok(())
     }
 
-    pub fn from_toml(path: impl AsRef<Path> + Display) -> Result<(Self, WavSettings, String), String> {
+    /// Create Project from .project file
+    pub fn from_toml(path: impl AsRef<Path> + Display, progress_updates: bool) -> Result<(Self, WavSettings, String), String> {
         let p = &path.to_string();
-        if Path::new(p).extension().uw() != "project" { return Err("Invalid type".ts()); }
+        if let Some(path) = Path::new(p).extension() {
+            if path != "project" { return Err("Invalid type".ts()); }
+        } else { return Err("Invalid type".ts()); }
 
-        let mut file_location = p.clone();
-        file_location.replace_range(p.find(Path::new(p).file_name().uw().to_str().uw()).uw()..p.len(), "");
-        let export_file_name = Path::new(p).file_stem().uw().to_str().uw().ts();
+        if progress_updates { println!("Opening project file."); }
 
         let file = OpenOptions::new()
             .read(true)
@@ -101,14 +112,24 @@ impl Project {
         if file.is_err() { return Err("Project file not found".ts()); }
         let mut file = file.uw();
 
+        let mut file_location = p.clone();
+        file_location.replace_range(p.find(Path::new(p).file_name().uw().to_str().uw()).uw()..p.len(), "");
+        let export_file_name = Path::new(p).file_stem().uw().to_str().uw().ts();
+
+        if progress_updates { println!("Reading project file."); }
+
         let mut toml_data = String::default();
         if file.read_to_string(&mut toml_data).is_err() { return Err("Invalid project file".ts()); }
+
+        if progress_updates { println!("Deserializing project file."); }
 
         let de: Result<TomlProject, toml::de::Error> = toml::from_str(toml_data.as_str());
         if de.is_err() { return Err("Incorrect TOML data in project file".ts()); }
 
+        if progress_updates { println!("Interpreting project data."); }
+
         let toml_project = de.uw();
-        let project = toml_project.to_project(file_location);
+        let project = toml_project.to_project(file_location, progress_updates);
         if project.is_err() { return Err(project.unwrap_err()); }
 
         Ok((project.uw(), toml_project.settings, export_file_name + ".wav"))
@@ -122,12 +143,12 @@ struct TomlProject {
 }
 
 impl TomlProject {
-    pub fn to_project(&self, project_location: String) -> Result<Project, String> {
-        let mut project = Project::new();
+    pub fn to_project(&self, project_location: String, progress_updates: bool) -> Result<Project, String> {
+        let mut project = Project { progress_updates: true, ..Default::default() };
         for track_path in &self.tracks {
             let track = project.new_track(TrackType::MIDI);
 
-            let res = track.midi_mut().add_from_toml(project_location.clone() + track_path);
+            let res = track.midi_mut().add_from_toml(project_location.clone() + track_path, progress_updates);
             if res.is_err() { return Err(res.unwrap_err().ts()); }
         }
 

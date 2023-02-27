@@ -1,11 +1,11 @@
 start = 0
-duration = 1
+duration = 60
 pitch = "C4"
 
-start = 1
-duration = 1
+start = 60
+duration = 60
 pitch = "E4"
 
-start = 2
-duration = 1
+start = 120
+duration = 60
 pitch = "G4"

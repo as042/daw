@@ -3,9 +3,10 @@ use crate::prelude::{Wave, Instrument};
 use super::{*, sample_conversion::*, resample::*, format::match_num_channels};
 
 // Handles the various conversions of the data needed to prepare it for writing
-pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_settings: WavSettings) {
+pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_settings: WavSettings, progress_updates: bool) {
     let mut raw_sample_tracks = tracks.to_vec();
     for track in tracks.iter().filter(|t| t.is_type(TrackType::MIDI)) {
+        if progress_updates { println!("Converting MIDI track data to raw samples."); }
         let notes = track.midi().notes();
         let mut raw_sample_track = Track::default();
         raw_sample_track.data = Box::new(RawSamples::default());
@@ -27,12 +28,19 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
     for track in raw_sample_tracks.iter().filter(|t| t.is_type(TrackType::RawSamples)).map(|t| t) {
         let samples = track.raw_samples().samples();
         let settings = track.raw_samples().settings;
+        
+        if progress_updates { println!("Resampling."); }
 
         let resamples = resample(samples, settings, export_settings);
+
+        if progress_updates { println!("Formatting raw samples."); }
+
         let one_vec = change_array_to_vec(&resamples, settings.num_channels);
         let binary_samples = change_f64_to_sample(&one_vec, export_settings.bytes_per_sample);
         let final_samples = match_num_channels(&binary_samples, settings.num_channels, export_settings);
         
+        if progress_updates { println!("Writing raw samples to data."); }
+
         for i in (0..final_samples.len()).step_by(export_settings.bytes_per_sample) {
             let mut sample = [0; 8];
             for k in 0..export_settings.bytes_per_sample {

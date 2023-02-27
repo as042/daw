@@ -58,8 +58,12 @@ impl MIDI {
         Ok(())
     }
 
-    pub fn add_from_toml(&mut self, path: impl AsRef<Path> + Display) -> Result<(), &str> {
-        if Path::new(&path.to_string()).extension().uw() != "track" { return Err("Invalid type"); }
+    pub fn add_from_toml(&mut self, path: impl AsRef<Path> + Display, progress_updates: bool) -> Result<(), &str> {
+        if let Some(path) = Path::new(&path.to_string()).extension() {
+            if path != "track" { return Err("Invalid type"); }
+        } else { return Err("Invalid type"); }
+
+        if progress_updates { println!("Opening track file."); }
 
         let file = OpenOptions::new()
             .read(true)
@@ -68,8 +72,12 @@ impl MIDI {
         if file.is_err() { return Err("Track file not found"); }
         let mut file = file.uw();
 
+        if progress_updates { println!("Reading track file."); }
+
         let mut toml_data = String::default();
         if file.read_to_string(&mut toml_data).is_err() { return Err("Invalid track file"); }
+
+        if progress_updates { println!("Lexing track file."); }
 
         if toml_data.find("start").is_none() { return Err("No TOMLs found in track file") }
 
@@ -87,6 +95,8 @@ impl MIDI {
             tomls.push(toml_data.clone().split_at(idx).0.ts());
             toml_data.replace_range(0..idx, "");
         }
+
+        if progress_updates { println!("Deserializing track file."); }
 
         let mut dynamic = Dynamic::MF;
         let mut instrument = Instrument::SubtractiveSynth;
