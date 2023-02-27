@@ -1,6 +1,14 @@
+# Use the '#' symbol to comment out a line.
+
+# Include the locations of all .track files used in this project (e.g. ["melody.track", "bass.track"]):
 tracks = ["example.track"]
 
+# These settings describe the encoding of the .wav file.
 [settings] 
+# 1 channel = mono, 2 channels = stereo
 num_channels = 2
+# Higher sample rate means higher quality but can take longer to process. Common values are 44100 and 88200. 
+# !! CURRENTLY UNSUPPORTED, JUST USE 44100 !!
 sample_rate = 44100
+# More bytes per sample means higher quality but can take longer to process. Common values are 2 and 3.
 bytes_per_sample = 2

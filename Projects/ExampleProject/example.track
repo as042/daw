@@ -1,10 +1,11 @@
 # Time values are in seconds.
 start = 0
 duration = 10
-# Acceptable pitch syntax is note letter + octave, E.G. ("AS5" or "DF3").
+# Acceptable pitch syntax is note letter + octave (e.g. "CS5" or "DF3").
 pitch = "C4"
 # These 3 fields are optional. Once set, they apply to every note in this file until changed again.
-dynamic = "F"
+# The values below are their default values.
+dynamic = "MF"
 instrument = "SubtractiveSynth"
 channels = "All"
 
