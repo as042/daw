@@ -1,51 +1,12 @@
 use daw::prelude::*;
+#[allow(unused_imports)]
+use performance_tester::test_performance;
 
 fn main() {
-    let mut project = Project::new();
+    let mut path = String::default();
+    std::io::stdin().read_line(&mut path).uw();
 
-    project.new_track(TrackType::RawSamples);
-    let data = project.track(TrackType::RawSamples, 0).uw().raw_samples_mut();
+    let output = Project::from_toml(path.trim()).uw();  
 
-    data.add_note1(Wave {
-        freq: C4,
-        amp: 0.1,
-        phase_shift: 0.0,
-    }, Channels::All, Time::new(0.0, 0.25));
-    data.add_note1(Wave {
-        freq: D4,
-        amp: 0.1,
-        phase_shift: 0.0,
-    }, Channels::All, Time::new(0.25, 0.25));
-    data.add_note1(Wave {
-        freq: DS4,
-        amp: 0.1,
-        phase_shift: 0.0,
-    }, Channels::All, Time::new(0.5, 0.25));
-    data.add_note1(Wave {
-        freq: F4,
-        amp: 0.1,
-        phase_shift: 0.0,
-    }, Channels::All, Time::new(0.75, 0.25));
-    data.add_note1(Wave {
-        freq: D4,
-        amp: 0.1,
-        phase_shift: 0.0,
-    }, Channels::All, Time::new(1.0, 0.5));
-    data.add_note1(Wave {
-        freq: AS3,
-        amp: 0.1,
-        phase_shift: 0.0,
-    }, Channels::All, Time::new(1.5, 0.25));
-    data.add_note1(Wave {
-        freq: C4,
-        amp: 0.1,
-        phase_shift: 0.0,
-    }, Channels::All, Time::new(1.75, 1.25));
-
-    data.reverb(Channels::All, 0.15, 0.6, 15.5, Time::new(0.0, 3.0));
-
-    project.export_wav(WavSettings { 
-        num_channels: 2, 
-        sample_rate: 44100, 
-        bytes_per_sample: 2}, "test.wav").uw();
+    output.0.export_wav(output.1, output.2).uw();
 }

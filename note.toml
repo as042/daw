@@ -1,0 +1,6 @@
+start = 0.0
+duration = 2.0
+pitch = "D4" 
+dynamic = "F"
+channels = "All"
+instrument = "SubtractiveSynth"

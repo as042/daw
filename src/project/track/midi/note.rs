@@ -1,10 +1,12 @@
-use crate::prelude::Time;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Default, PartialEq, PartialOrd, Debug)]
+use crate::prelude::{Time, Instrument, Channels};
+
+#[derive(Clone, Copy, Default, PartialEq, PartialOrd, Debug, Deserialize, Serialize)]
 pub struct Note {
-    pitch: f64,
-    velocity: f64,
-    channel: usize,
-    instrument: i64,
-    time: Time
+    pub freq: f64,
+    pub velocity: u8,
+    pub channels: Channels,
+    pub instrument: Instrument,
+    pub time: Time
 }

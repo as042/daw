@@ -59,7 +59,7 @@ impl RawSamples {
     /// Adds the given sample to the data.
     pub fn add_sample(&mut self, sample: f64, idx: usize, channels: Channels) {
         // Pads zeros to prevent indexing out-of-bounds errors
-        for _ in 0..idx as i32 + self.settings.num_channels as i32 - self.samples[0].len() as i32 {
+        for _ in 0..idx as i32 + 1 - self.samples[0].len() as i32 {
             for k in 0..self.settings.num_channels {
                 self.samples[k].push(0.0);
             }

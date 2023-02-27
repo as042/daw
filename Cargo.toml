@@ -9,3 +9,6 @@ edition = "2021"
 byteorder = "1.4.3"
 method_shorthands = "0.2.0"
 rustfft = "6.1.0"
+performance_tester = "0.1.1"
+serde = { version = "1.0.152", features = ["derive"] }
+toml = "0.7.2"

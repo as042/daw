@@ -1,4 +1,6 @@
-#[derive(Clone, Copy, Default, PartialEq, PartialOrd, Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, Default, Deserialize, PartialEq, PartialOrd, Debug, Serialize)]
 pub struct Time {
     pub start: f64,
     pub end: f64

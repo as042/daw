@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, Copy, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Deserialize, Clone, Copy, PartialEq, Serialize)]
 pub struct WavSettings {
     pub num_channels: usize, 
     pub sample_rate: i32, 

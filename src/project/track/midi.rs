@@ -1,4 +1,8 @@
 pub mod note;
+pub mod instrument;
+pub mod dynamics;
+pub mod toml;
+pub mod pitch;
 
 use note::*;
 use crate::prelude::{TrackData, TrackType};
@@ -42,5 +46,9 @@ impl TrackData for MIDI {
 impl MIDI {
     pub fn notes(&self) -> &Vec<Note> {
         &self.notes
+    }
+
+    pub fn add_note(&mut self, note: Note) {
+        self.notes.push(note);
     }
 }

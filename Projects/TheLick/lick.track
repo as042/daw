@@ -1,0 +1,28 @@
+start = 0
+duration = 0.25
+pitch = "C4"
+dynamic = "MF"
+
+start = 0.25
+duration = 0.25
+pitch = "D4"
+
+start = 0.5
+duration = 0.25
+pitch = "EF4"
+
+start = 0.75
+duration = 0.25
+pitch = "F4"
+
+start = 1.0
+duration = 0.5
+pitch = "D4"
+
+start = 1.5
+duration = 0.25
+pitch = "BF3"
+
+start = 1.75
+duration = 1.25
+pitch = "C4"

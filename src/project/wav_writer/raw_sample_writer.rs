@@ -1,18 +1,38 @@
-use raw_samples::Samples;
+use raw_samples::{Samples, RawSamples};
+use crate::prelude::{Wave, Instrument};
 use super::{*, sample_conversion::*, resample::*, format::match_num_channels};
 
 // Handles the various conversions of the data needed to prepare it for writing
 pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_settings: WavSettings) {
-    for track in tracks.iter().filter(|x| x.is_type(TrackType::RawSamples)) {
-        let raw_samples = track.raw_samples();
-        let samples = raw_samples.samples();
-        let settings = raw_samples.settings;
+    let mut raw_sample_tracks = tracks.to_vec();
+    for track in tracks.iter().filter(|t| t.is_type(TrackType::MIDI)) {
+        let notes = track.midi().notes();
+        let mut raw_sample_track = Track::default();
+        raw_sample_track.data = Box::new(RawSamples::default());
+        for note in notes {
+            let wave = Wave { 
+                freq: note.freq, 
+                amp: (note.velocity as f64 / 128 as f64).powf(2.5), 
+                phase_shift: 0.0
+            };
+
+            let data = raw_sample_track.raw_samples_mut();
+            match note.instrument {
+                Instrument::SubtractiveSynth => data.add_subtractive_synth_note(wave, note.channels, note.time)
+            }
+        }
+
+        raw_sample_tracks.push(raw_sample_track);
+    }
+    for track in raw_sample_tracks.iter().filter(|t| t.is_type(TrackType::RawSamples)).map(|t| t) {
+        let samples = track.raw_samples().samples();
+        let settings = track.raw_samples().settings;
 
         let resamples = resample(samples, settings, export_settings);
         let one_vec = change_array_to_vec(&resamples, settings.num_channels);
         let binary_samples = change_f64_to_sample(&one_vec, export_settings.bytes_per_sample);
         let final_samples = match_num_channels(&binary_samples, settings.num_channels, export_settings);
-
+        
         for i in (0..final_samples.len()).step_by(export_settings.bytes_per_sample) {
             let mut sample = [0; 8];
             for k in 0..export_settings.bytes_per_sample {

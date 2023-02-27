@@ -50,15 +50,15 @@ impl RawSamples {
         }
     }
 
-    /// Adds timbre1 to the existing data.
-    pub fn add_timbre1(&mut self, wave: Wave, channels: Channels, time: Time) {
+    /// Adds subtractive synth to the existing data.
+    pub fn add_subtractive_synth(&mut self, wave: Wave, channels: Channels, time: Time) {
         let mut vec = self.new_sawtooth_wav(wave, time.duration());
         self.low_pass(&mut vec, wave.freq * 3.1);
         self.add(vec, channels, time.start);
     }
 
     /// Adds note1 to the existing data.
-    pub fn add_note1(&mut self, wave: Wave, channels: Channels, time: Time) {
+    pub fn add_subtractive_synth_note(&mut self, wave: Wave, channels: Channels, time: Time) {
         let rest_duration = -1.0 / (100.0 * time.duration() + 20.0) + 0.05;  
         let note_duration = time.duration() - rest_duration;
 
