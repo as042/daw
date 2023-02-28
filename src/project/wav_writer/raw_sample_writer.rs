@@ -31,7 +31,7 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
         
         if progress_updates { println!("Resampling."); }
 
-        let resamples = resample(samples, settings, export_settings);
+        let resamples = resample(samples, settings, export_settings.sample_rate);
 
         if progress_updates { println!("Formatting raw samples."); }
 
