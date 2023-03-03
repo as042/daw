@@ -15,7 +15,7 @@ pub use track_type::*;
 pub use wav_settings::*;
 pub use wav_writer::*;
 pub use wave::*;
-use self::track::{raw_samples::RawSamples, score::Score, midi::MIDI};
+use self::{track::{raw_samples::RawSamples, score::Score, midi::MIDI}, effect::Effect};
 
 #[derive(Clone, Default, PartialEq, Debug)]
 pub struct Project {
@@ -33,8 +33,9 @@ impl Project {
 
         track.data = match track_type {
             TrackType::RawSamples => Box::new(RawSamples::default()),
+            TrackType::MIDI => Box::new(MIDI::default()),
             TrackType::Score => Box::new(Score::default()),
-            TrackType::MIDI => Box::new(MIDI::default())
+            TrackType::Filter => Box::new(Effect::default())
         };
 
         self.tracks.push(track);
@@ -133,6 +134,22 @@ impl Project {
         if project.is_err() { return Err(project.unwrap_err()); }
 
         Ok((project.uw(), toml_project.settings, export_file_name + ".wav"))
+    }
+
+    /// Create project from files inputted through console and export to wav.
+    pub fn from_console_input() {
+        let mut path = String::default();
+        std::io::stdin().read_line(&mut path).uw();
+    
+        let from_toml = Project::from_toml(path.trim(), true);
+        if let Ok(output) = from_toml {
+            output.0.export_wav(output.1, output.2, true).uw();
+        }  
+        else {
+            println!("Error: {}. \nOperation unsuccessful.", from_toml.unwrap_err());
+        }
+    
+        std::io::stdin().read_line(&mut path).uw();
     }
 }
 

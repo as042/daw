@@ -3,5 +3,6 @@ pub enum TrackType {
     RawSamples,
     Score,
     #[default]
-    MIDI
+    MIDI,
+    Filter
 }

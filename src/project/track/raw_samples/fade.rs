@@ -1,6 +1,6 @@
 use std::mem::discriminant;
 
-use crate::prelude::Time;
+use crate::prelude::{Time, Channels};
 use super::RawSamples;
 
 #[derive(Clone, Copy, Default, PartialEq, PartialOrd)]
@@ -19,8 +19,24 @@ pub enum FadeType {
 }
 
 impl RawSamples {
+    pub fn fade(&mut self, fades: Vec<Fade>, channels: Channels, time: Time) {
+        for j in 0..self.settings.num_channels {
+            if channels == Channels::All || 
+                channels == Channels::Just(j) ||
+                (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
+            {
+                let range = (time.start * self.settings.sample_rate as f64) as usize..
+                    (time.end * self.settings.sample_rate as f64) as usize;
+                let mut vec = self.samples[j][range.clone()].to_vec();
+
+                Self::fade_vec(&mut vec, &fades, self.settings.sample_rate);
+
+                self.samples[j].splice(range, vec);
+            }
+        }
+    }
     /// Applies the given fades to the inputted vector.
-    pub fn fade(buffer: &mut Vec<f64>, fades: Vec<Fade>, sample_rate: i32) {
+    pub fn fade_vec(buffer: &mut Vec<f64>, fades: &Vec<Fade>, sample_rate: i32) {
         for fade in fades {
             let mut pow = 1.0;
             if let FadeType::Power(exp) = fade.fade_type {

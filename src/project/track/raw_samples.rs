@@ -30,6 +30,9 @@ impl TrackData for RawSamples {
     fn score(&self) -> &super::Score {
         panic!("Incorrect type.")
     }
+    fn effect(&self) -> &crate::prelude::Effect {
+        panic!("Incorrect type.")
+    }
     fn raw_samples_mut(&mut self) -> &mut RawSamples {
         self
     }
@@ -39,6 +42,10 @@ impl TrackData for RawSamples {
     fn score_mut(&mut self) -> &mut super::Score {
         panic!("Incorrect type.")
     }
+    fn effect_mut(&mut self) -> &mut crate::prelude::Effect {
+        panic!("Incorrect type.")
+    }
+    
     fn get_type(&self) -> TrackType {
         TrackType::RawSamples
     }

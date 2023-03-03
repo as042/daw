@@ -4,5 +4,5 @@ pub mod note_freqs;
 mod tests;
 
 pub mod prelude {
-    pub use crate::{project::{*, time::*, raw_samples::{*, channels::*, modifiers::*, fade::*, reverb::*}, midi::{*, instrument::*, note::*, dynamics::*, toml::*}}, note_freqs::*};
+    pub use crate::{project::{*, time::*, raw_samples::{*, channels::*, modifiers::*, fade::*, reverb::*}, midi::{*, instrument::*, note::*, dynamics::*, toml::*}, score::*, effect::*}, note_freqs::*};
 }

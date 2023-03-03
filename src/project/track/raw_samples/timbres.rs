@@ -64,7 +64,7 @@ impl RawSamples {
 
         let mut vec = self.new_sawtooth_wav(wave, note_duration);
         self.low_pass(&mut vec, wave.freq * 3.1);
-        RawSamples::fade(&mut vec, vec![
+        RawSamples::fade_vec(&mut vec, &vec![
             Fade { fade_type: FadeType::Power(2.0), fade_out: false, time: Time::new(0.0, 0.005) },
             Fade { fade_type: FadeType::Power(2.0), fade_out: true, time: Time::new(note_duration - 0.005, 0.005) }], self.settings.sample_rate);
         

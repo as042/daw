@@ -1,9 +1,11 @@
 pub mod raw_samples;
 pub mod midi;
 pub mod score;
+pub mod effect;
 
 use std::fmt::Debug;
 
+use self::effect::Effect;
 use super::track_type::*;
 use raw_samples::*;
 use midi::*;
@@ -13,9 +15,11 @@ pub trait TrackData: TrackDataClone + Debug {
     fn raw_samples(&self) -> &RawSamples;
     fn midi(&self) -> &MIDI;
     fn score(&self) -> &Score; 
+    fn effect(&self) -> &Effect; 
     fn raw_samples_mut(&mut self) -> &mut RawSamples;
     fn midi_mut(&mut self) -> &mut MIDI;
     fn score_mut(&mut self) -> &mut Score; 
+    fn effect_mut(&mut self) -> &mut Effect; 
     fn get_type(&self) -> TrackType;
     fn is_type(&self, track_type: TrackType) -> bool;
 }
@@ -72,6 +76,9 @@ impl Track {
     pub fn score(&self) -> &Score {
         self.data.score()
     }
+    pub fn filter(&self) -> &Effect {
+        self.data.effect()
+    }
     pub fn raw_samples_mut(&mut self) -> &mut RawSamples {
         self.data.raw_samples_mut()
     }
@@ -80,6 +87,9 @@ impl Track {
     }
     pub fn score_mut(&mut self) -> &mut Score {
         self.data.score_mut()
+    }
+    pub fn filter_mut(&mut self) -> &mut Effect {
+        self.data.effect_mut()
     }
 
     pub fn is_type(&self, track_type: TrackType) -> bool {
@@ -91,24 +101,30 @@ impl Track {
 
     pub fn len(&self) -> usize {
         if self.is_type(TrackType::RawSamples) {
-            return self.data.raw_samples().samples().len();
+            self.data.raw_samples().samples().len()
         }
         else if self.is_type(TrackType::MIDI) {
-            return self.data.midi().notes().len();
+            self.data.midi().notes().len()
+        }
+        else if self.is_type(TrackType::Score) {
+            self.data.score().samples().len()
         }
         else {
-            return self.data.score().samples().len();
+            1
         }
     }
     pub fn size(&self, block_align: usize, sample_rate: i32) -> usize {
         if self.is_type(TrackType::RawSamples) {
-            return self.data.raw_samples().samples().iter().map(|x| x.len()).max().uw() * block_align;
+            self.data.raw_samples().samples().iter().map(|x| x.len()).max().uw() * block_align
         }
         else if self.is_type(TrackType::MIDI) {
-            return (self.data.midi().notes().iter().map(|n| n.time.end).fold(0_f64, |a, b| a.max(b)) * sample_rate as f64) as usize * block_align;
+            (self.data.midi().notes().iter().map(|n| n.time.end).fold(0_f64, |a, b| a.max(b)) * sample_rate as f64) as usize * block_align
+        }
+        else if self.is_type(TrackType::Score) {
+            self.len()
         }
         else {
-            return self.data.score().samples().len();
+            self.len()
         }
     }
 }
