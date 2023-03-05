@@ -14,48 +14,10 @@ use self::channels::Channels;
 
 pub type Samples = [Vec<f64>; 8];
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct RawSamples {
     samples: Samples,
     pub settings: WavSettings
-}
-
-impl TrackData for RawSamples {
-    fn raw_samples(&self) -> &RawSamples {
-        self
-    }
-    fn midi(&self) -> &super::MIDI {
-        panic!("Incorrect type.")
-    }
-    fn score(&self) -> &super::Score {
-        panic!("Incorrect type.")
-    }
-    fn effect(&self) -> &crate::prelude::Effect {
-        panic!("Incorrect type.")
-    }
-    fn raw_samples_mut(&mut self) -> &mut RawSamples {
-        self
-    }
-    fn midi_mut(&mut self) -> &mut super::MIDI {
-        panic!("Incorrect type.")
-    }
-    fn score_mut(&mut self) -> &mut super::Score {
-        panic!("Incorrect type.")
-    }
-    fn effect_mut(&mut self) -> &mut crate::prelude::Effect {
-        panic!("Incorrect type.")
-    }
-    
-    fn get_type(&self) -> TrackType {
-        TrackType::RawSamples
-    }
-    fn is_type(&self, track_type: TrackType) -> bool {
-        if track_type == TrackType::RawSamples {
-            return true;
-        }
-
-        false
-    }
 }
 
 impl RawSamples {
@@ -113,5 +75,43 @@ impl RawSamples {
         }
 
         buffer
+    }
+}
+
+impl TrackData for RawSamples {
+    fn raw_samples(&self) -> &RawSamples {
+        self
+    }
+    fn midi(&self) -> &super::MIDI {
+        panic!("Incorrect type.")
+    }
+    fn score(&self) -> &super::Score {
+        panic!("Incorrect type.")
+    }
+    fn effect(&self) -> &crate::prelude::Effect {
+        panic!("Incorrect type.")
+    }
+    fn raw_samples_mut(&mut self) -> &mut RawSamples {
+        self
+    }
+    fn midi_mut(&mut self) -> &mut super::MIDI {
+        panic!("Incorrect type.")
+    }
+    fn score_mut(&mut self) -> &mut super::Score {
+        panic!("Incorrect type.")
+    }
+    fn effect_mut(&mut self) -> &mut crate::prelude::Effect {
+        panic!("Incorrect type.")
+    }
+    
+    fn get_type(&self) -> TrackType {
+        TrackType::RawSamples
+    }
+    fn is_type(&self, track_type: TrackType) -> bool {
+        if track_type == TrackType::RawSamples {
+            return true;
+        }
+
+        false
     }
 }

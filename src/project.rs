@@ -15,7 +15,7 @@ pub use track_type::*;
 pub use wav_settings::*;
 pub use wav_writer::*;
 pub use wave::*;
-use self::{track::{raw_samples::RawSamples, score::Score, midi::MIDI}, effect::Effect};
+use self::{raw_samples::RawSamples, score::Score, midi::MIDI, effect::Effect};
 
 #[derive(Clone, Default, PartialEq, Debug)]
 pub struct Project {
@@ -24,10 +24,12 @@ pub struct Project {
 }
 
 impl Project {
+    #[inline]
     pub fn new() -> Self {
         Self::default()
     }
 
+    #[inline]
     pub fn new_track(&mut self, track_type: TrackType) -> &mut Track {
         let mut track = Track::default();
 
@@ -35,7 +37,7 @@ impl Project {
             TrackType::RawSamples => Box::new(RawSamples::default()),
             TrackType::MIDI => Box::new(MIDI::default()),
             TrackType::Score => Box::new(Score::default()),
-            TrackType::Filter => Box::new(Effect::default())
+            TrackType::Effect => Box::new(Effect::default())
         };
 
         self.tracks.push(track);
@@ -44,6 +46,7 @@ impl Project {
         &mut self.tracks[len - 1]
     }
 
+    #[inline]
     pub fn track(&mut self, track_type: TrackType, rank: usize) -> Result<&mut Track, String> {
         let mut count = 0;
         for k in 0..self.tracks.len() {
@@ -59,6 +62,7 @@ impl Project {
         Err("Cannot find specific track.".ts())
     }
 
+    #[inline]
     pub fn export_midi(&self) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".ts()); }
         if self.tracks.iter().any(|x| x.is_type(TrackType::RawSamples)) { return Err("Tracks cannot be RawSamples type.".ts()); }
@@ -67,6 +71,7 @@ impl Project {
     }
 
     /// Export Project to .wav file
+    #[inline]
     pub fn export_wav(&self, wav_settings: WavSettings, path: impl AsRef<Path>, progress_updates: bool) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".ts()); }
 
@@ -98,10 +103,11 @@ impl Project {
     }
 
     /// Create Project from .project file
+    #[inline]
     pub fn from_toml(path: impl AsRef<Path> + Display, progress_updates: bool) -> Result<(Self, WavSettings, String), String> {
         let p = &path.to_string();
-        if let Some(path) = Path::new(p).extension() {
-            if path != "project" { return Err("Invalid type".ts()); }
+        if let Some(ext) = Path::new(p).extension() {
+            if ext.to_ascii_uppercase() != "PROJECT" { return Err("Invalid type".ts()); }
         } else { return Err("Invalid type".ts()); }
 
         if progress_updates { println!("Opening project file."); }
@@ -137,6 +143,7 @@ impl Project {
     }
 
     /// Create project from files inputted through console and export to wav.
+    #[inline]
     pub fn from_console_input() {
         let mut path = String::default();
         std::io::stdin().read_line(&mut path).uw();
@@ -156,16 +163,24 @@ impl Project {
 #[derive(Deserialize, Clone)]
 struct TomlProject {
     settings: WavSettings,
-    tracks: Vec<String>
+    tracks: Vec<String>,
+    effects: Vec<String>
 }
 
 impl TomlProject {
+    #[inline]
     pub fn to_project(&self, project_location: String, progress_updates: bool) -> Result<Project, String> {
         let mut project = Project { progress_updates: true, ..Default::default() };
         for track_path in &self.tracks {
             let track = project.new_track(TrackType::MIDI);
 
             let res = track.midi_mut().add_from_toml(project_location.clone() + track_path, progress_updates);
+            if res.is_err() { return Err(res.unwrap_err().ts()); }
+        }
+        for effect_path in &self.effects {
+            let track = project.new_track(TrackType::Effect);
+
+            let res = track.effect_mut().add_from_toml(project_location.clone() + effect_path, progress_updates);
             if res.is_err() { return Err(res.unwrap_err().ts()); }
         }
 

@@ -25,7 +25,8 @@ pub enum TomlChannels {
 
 impl TomlNote {
     fn to_note(&self) -> Note {
-        Note { freq: Pitch::from_str(&self.pitch).uw().to_freq(), 
+        Note { 
+            freq: Pitch::from_str(&self.pitch).uw().to_freq(), 
             velocity: self.dynamic.uw().to_vel(), 
             channels: match self.channels.uw() {
                 TomlChannels::All => Channels::All,
@@ -39,6 +40,7 @@ impl TomlNote {
 }
 
 impl MIDI {
+    #[deprecated]
     pub fn add_note_from_toml(&mut self, path: impl AsRef<Path> + Display) -> Result<(), &str> {
         if Path::new(&path.to_string()).extension().uw() != "note" { return Err("Invalid type"); }
 
@@ -59,8 +61,8 @@ impl MIDI {
     }
 
     pub fn add_from_toml(&mut self, path: impl AsRef<Path> + Display, progress_updates: bool) -> Result<(), &str> {
-        if let Some(path) = Path::new(&path.to_string()).extension() {
-            if path != "track" { return Err("Invalid type"); }
+        if let Some(ext) = Path::new(&path.to_string()).extension() {
+            if ext.to_ascii_uppercase() != "TRACK" { return Err("Invalid type"); }
         } else { return Err("Invalid type"); }
 
         if progress_updates { println!("Opening track file."); }

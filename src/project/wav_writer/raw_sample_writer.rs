@@ -1,3 +1,4 @@
+use effect::EffectType;
 use raw_samples::{Samples, RawSamples};
 use crate::prelude::{Wave, Instrument};
 use super::{*, sample_conversion::*, resample::*, format::match_num_channels};
@@ -10,6 +11,8 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
         let notes = track.midi().notes();
         let mut raw_sample_track = Track::default();
         raw_sample_track.data = Box::new(RawSamples::default());
+        let data = raw_sample_track.raw_samples_mut();
+        
         for note in notes {
             let wave = Wave { 
                 freq: note.freq, 
@@ -17,9 +20,18 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
                 phase_shift: 0.0
             };
 
-            let data = raw_sample_track.raw_samples_mut();
             match note.instrument {
                 Instrument::SubtractiveSynth => data.add_subtractive_synth_note(wave, note.channels, note.time)
+            }
+        }
+
+        for effect in tracks.iter().filter(|t| t.is_type(TrackType::Effect)) {
+            let effect_data = effect.data.effect();
+            if effect_data.affected_tracks.contains(&tracks.iter().position(|t| t == track).uw()) {
+                match effect_data.effect_type {
+                    EffectType::Reverb(del, dec, mix) => data.reverb(effect_data.channels, del, dec, mix, effect_data.time),
+                    EffectType::Fade(fade) => data.fade(fade, effect_data.channels, effect_data.time),
+                }
             }
         }
 

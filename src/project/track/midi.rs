@@ -1,7 +1,7 @@
 pub mod note;
 pub mod instrument;
 pub mod dynamics;
-pub mod toml;
+pub mod midi_toml;
 pub mod pitch;
 
 use note::*;

@@ -4,5 +4,5 @@ pub enum TrackType {
     Score,
     #[default]
     MIDI,
-    Filter
+    Effect
 }

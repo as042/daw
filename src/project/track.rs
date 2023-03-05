@@ -50,7 +50,16 @@ pub struct Track {
 
 impl PartialEq for Track {
     fn eq(&self, other: &Self) -> bool {
-        self == other
+        if self.get_type() == other.get_type() {
+            return match self.get_type() {
+                TrackType::RawSamples => self.data.raw_samples() == other.data.raw_samples(),
+                TrackType::Score => self.data.score() == other.data.score(),
+                TrackType::MIDI => self.data.midi() == other.data.midi(),
+                TrackType::Effect => self.data.effect() == other.data.effect(),
+            }
+        }
+
+        false
     }
 }
 
@@ -67,38 +76,49 @@ impl Default for Track {
 }
 
 impl Track {
+    #[inline]
     pub fn raw_samples(&self) -> &RawSamples {
         self.data.raw_samples()
     }
+    #[inline]
     pub fn midi(&self) -> &MIDI {
         self.data.midi()
     }
+    #[inline]
     pub fn score(&self) -> &Score {
         self.data.score()
     }
-    pub fn filter(&self) -> &Effect {
+    #[inline]
+    pub fn effect(&self) -> &Effect {
         self.data.effect()
     }
+    #[inline]
     pub fn raw_samples_mut(&mut self) -> &mut RawSamples {
         self.data.raw_samples_mut()
     }
+    #[inline]
     pub fn midi_mut(&mut self) -> &mut MIDI {
         self.data.midi_mut()
     }
+    #[inline]
     pub fn score_mut(&mut self) -> &mut Score {
         self.data.score_mut()
     }
-    pub fn filter_mut(&mut self) -> &mut Effect {
+    #[inline]
+    pub fn effect_mut(&mut self) -> &mut Effect {
         self.data.effect_mut()
     }
 
+    #[inline]
     pub fn is_type(&self, track_type: TrackType) -> bool {
         self.data.is_type(track_type)
     }
+    #[inline]
     pub fn get_type(&self) -> TrackType {
         self.data.get_type()
     }
 
+    #[inline]
     pub fn len(&self) -> usize {
         if self.is_type(TrackType::RawSamples) {
             self.data.raw_samples().samples().len()
@@ -113,6 +133,7 @@ impl Track {
             1
         }
     }
+    #[inline]
     pub fn size(&self, block_align: usize, sample_rate: i32) -> usize {
         if self.is_type(TrackType::RawSamples) {
             self.data.raw_samples().samples().iter().map(|x| x.len()).max().uw() * block_align
