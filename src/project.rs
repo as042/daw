@@ -164,7 +164,7 @@ impl Project {
 struct TomlProject {
     settings: WavSettings,
     tracks: Vec<String>,
-    effects: Vec<String>
+    effects: Option<Vec<String>>
 }
 
 impl TomlProject {
@@ -177,11 +177,13 @@ impl TomlProject {
             let res = track.midi_mut().add_from_toml(project_location.clone() + track_path, progress_updates);
             if res.is_err() { return Err(res.unwrap_err().ts()); }
         }
-        for effect_path in &self.effects {
-            let track = project.new_track(TrackType::Effect);
-
-            let res = track.effect_mut().add_from_toml(project_location.clone() + effect_path, progress_updates);
-            if res.is_err() { return Err(res.unwrap_err().ts()); }
+        if self.effects.is_some() {
+            for effect_path in self.effects.as_ref().uw() {
+                let track = project.new_track(TrackType::Effect);
+    
+                let res = track.effect_mut().add_from_toml(project_location.clone() + effect_path, progress_updates);
+                if res.is_err() { return Err(res.unwrap_err().ts()); }
+            }    
         }
 
         Ok(project)

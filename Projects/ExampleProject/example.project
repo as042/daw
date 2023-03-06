@@ -2,6 +2,7 @@
 
 # Include the relative locations of all .track files used in this project (e.g. ["melody.track", "bass.track"]):
 tracks = ["example.track"]
+effects = ["fade.effect", "reverb.effect"]
 
 # These settings describe the encoding of the .wav file.
 [settings] 

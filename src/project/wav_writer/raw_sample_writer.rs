@@ -28,9 +28,10 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
         for effect in tracks.iter().filter(|t| t.is_type(TrackType::Effect)) {
             let effect_data = effect.data.effect();
             if effect_data.affected_tracks.contains(&tracks.iter().position(|t| t == track).uw()) {
+                if progress_updates { println!("Applying {} effect to track.", effect_data.effect_type); }
                 match effect_data.effect_type {
                     EffectType::Reverb(del, dec, mix) => data.reverb(effect_data.channels, del, dec, mix, effect_data.time),
-                    EffectType::Fade(fade) => data.fade(fade, effect_data.channels, effect_data.time),
+                    EffectType::Fade(fade) => data.fade(fade, effect_data.channels)
                 }
             }
         }

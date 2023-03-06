@@ -1,10 +1,9 @@
 use std::mem::discriminant;
-use serde::{Deserialize, Serialize};
 
 use crate::prelude::{Time, Channels};
 use super::RawSamples;
 
-#[derive(Clone, Copy, Debug, Deserialize, Default, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, PartialOrd)]
 pub struct Fade {
     pub fade_type: FadeType,
     pub fade_out: bool,
@@ -14,15 +13,14 @@ pub struct Fade {
 impl Fade {
     pub fn new(fade_type: FadeType, fade_out: bool, time: Time) -> Fade {
         Fade { 
-            fade_type: fade_type, 
-            fade_out: fade_out, 
-            time: time
+            fade_type, 
+            fade_out, 
+            time
         }
     }
 }
 
-#[derive(Clone, Copy, Default, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
-#[serde(tag = "type", content = "args")]
+#[derive(Clone, Copy, Default, Debug, PartialEq, PartialOrd)]
 pub enum FadeType {
     #[default]
     Linear,
@@ -31,19 +29,19 @@ pub enum FadeType {
 }
 
 impl RawSamples {
-    pub fn fade(&mut self, fade: Fade, channels: Channels, time: Time) {
+    pub fn fade(&mut self, fade: Fade, channels: Channels) {
         for j in 0..self.settings.num_channels {
             if channels == Channels::All || 
                 channels == Channels::Just(j) ||
                 (discriminant(&channels) == discriminant(&Channels::AllBut(1)) && channels != Channels::AllBut(j))
             {
-                let range = (time.start * self.settings.sample_rate as f64) as usize..
-                    (time.end * self.settings.sample_rate as f64) as usize;
-                let mut vec = self.samples[j][range.clone()].to_vec();
+                let mut vec = self.samples[j].clone();
 
                 Self::fade_vec(&mut vec, &vec![fade], self.settings.sample_rate);
 
-                self.samples[j].splice(range, vec);
+                let range = (fade.time.start * self.settings.sample_rate as f64) as usize..
+                    (fade.time.end * self.settings.sample_rate as f64) as usize;
+                self.samples[j].splice(range.clone(), vec[range].to_vec());
             }
         }
     }

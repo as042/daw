@@ -1,12 +1,11 @@
-use std::{path::Path, fmt::Display, fs::OpenOptions, io::Read};
-
+use std::{path::Path, fmt::{Display, Debug, Formatter}, fs::OpenOptions, io::Read};
 use method_shorthands::methods::UW;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-use crate::prelude::{TrackType, Time, Channels, Fade};
+use crate::prelude::{TrackType, Time, Channels, Fade, FadeType};
 use super::TrackData;
 
-#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct Effect {
     pub effect_type: EffectType,
     pub affected_tracks: Vec<usize>,
@@ -14,16 +13,121 @@ pub struct Effect {
     pub time: Time
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[serde(tag = "type", content = "args")]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum EffectType {
     Reverb(f64, f64, f64),
     Fade(Fade)
 }
 
+impl Display for EffectType {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            EffectType::Reverb(del, dec, mix) => Debug::fmt(&EffectType::Reverb(*del, *dec, *mix), f),
+            EffectType::Fade(_) => write!(f, "Fade")
+        }
+    }
+}
+
 impl Default for EffectType {
     fn default() -> Self {
         EffectType::Reverb(0.1, 0.9, 50.0)
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Deserialize)]
+struct TomlEffect {
+    effect_type: TomlEffectType,
+    reverb_settings: Option<TomlReverbArgs>,
+    fade_settings: Option<TomlFadeArgs>,
+    affected_tracks: Vec<usize>,
+    start: f64,
+    duration: f64,
+    channels: Channels
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Deserialize)]
+struct TomlReverbArgs {
+    delay: f64,
+    decay_factor: f64,
+    mix_percentage: f64
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Deserialize)]
+struct TomlFadeArgs {
+    fade_type: TomlFadeType,
+    fade_direction: TomlFadeDirection
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Deserialize)]
+enum TomlFadeType {
+    #[default]
+    Linear,
+    Quadratic,
+    NegativeQuadratic
+}
+
+impl TomlFadeType {
+    fn to_fade_type(&self) -> FadeType {
+        return match self {
+            TomlFadeType::Linear => FadeType::Linear,
+            TomlFadeType::Quadratic => FadeType::Power(2.0),
+            TomlFadeType::NegativeQuadratic => FadeType::NegPower(2.0),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Deserialize)]
+enum TomlFadeDirection {
+    #[default]
+    In,
+    Out
+}
+
+impl TomlFadeDirection {
+    fn to_fade_out(&self) -> bool {
+        if self == &TomlFadeDirection::Out { 
+            return true;
+        }
+
+        false
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq)]
+enum TomlEffectType {
+    #[default]
+    Reverb,
+    Fade
+}
+
+impl TomlEffect {
+    fn to_effect(&self) -> Result<Effect, ()> {
+        let effect_type = if self.effect_type == TomlEffectType::Reverb {
+            if self.reverb_settings.is_none() { return Err(()) }
+            if self.fade_settings.is_some() { return Err(()) }
+
+            let settings = self.reverb_settings.uw();
+            EffectType::Reverb(settings.delay, settings.decay_factor, settings.mix_percentage)
+        }
+        else if self.effect_type == TomlEffectType::Fade {
+            if self.reverb_settings.is_some() { return Err(()) }
+            if self.fade_settings.is_none() { return Err(()) }
+            
+            let settings = self.fade_settings.uw();
+            EffectType::Fade(Fade::new(
+                settings.fade_type.to_fade_type(), 
+                settings.fade_direction.to_fade_out(), 
+                Time::new(self.start, self.duration)))
+        }
+        else {
+            return Err(())
+        };
+        Ok(Effect { 
+            effect_type: effect_type, 
+            affected_tracks: self.affected_tracks.clone(), 
+            channels: self.channels, 
+            time: Time::new(self.start, self.duration)
+        })
     }
 }
 
@@ -53,11 +157,13 @@ impl Effect {
         let mut toml_data = String::default();
         if file.read_to_string(&mut toml_data).is_err() { return Err("Invalid effect file"); }
 
-        let de: Result<Effect, toml::de::Error> = toml::from_str(&toml_data);
+        let de: Result<TomlEffect, toml::de::Error> = toml::from_str(&toml_data);
         if de.is_err() { return Err("Incorrect TOML data"); }
-        let effect = de.uw();
+        let toml_effect = de.uw();
 
-        *self = effect;
+        let effect = toml_effect.to_effect();
+        if effect.is_err() { return Err("Incorrect TOML data"); }
+        *self = effect.uw();
 
         Ok(())
     }

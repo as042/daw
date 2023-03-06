@@ -1,0 +1,9 @@
+effect_type = "Fade"
+affected_tracks = [0]
+start = 15
+duration = 15
+channels = "All"
+
+[fade_settings]
+fade_type = "NegativeQuadratic"
+fade_direction = "Out"
