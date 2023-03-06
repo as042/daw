@@ -5,10 +5,14 @@ duration = 10
 pitch = "C4"
 # These 3 fields are optional. Once set, they apply to every note in this file until changed again.
 # The values below are their default values.
+# Dynamic is your standard musical notation for dynamic, ranging from "PPPP" to "FFFF".
 dynamic = "MF"
+# Instrument describes the timbre of the sound produced. The only supported instrument right now is "SubtractiveSynth".
 instrument = "SubtractiveSynth"
+# State the affected channels. "All" for all, "Left" for stereo left, and "Right" for stereo right.
 channels = "All"
 
+# The start field indicates to the lexer/parser the beginning of a new note.
 start = 10
 duration = 10
 pitch = "E4"

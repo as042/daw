@@ -1,6 +1,7 @@
 tracks = ["test.track"]
+effects = ["reverb.effect", "fade.effect"]
 
 [settings] 
 num_channels = 2
-sample_rate = 44100
-bytes_per_sample = 2
+sample_rate = 88200
+bytes_per_sample = 3

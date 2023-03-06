@@ -16,7 +16,7 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
         for note in notes {
             let wave = Wave { 
                 freq: note.freq, 
-                amp: (note.velocity as f64 / 128 as f64).powf(2.5), 
+                amp: (note.velocity as f64 / 128 as f64).powf(2.0), 
                 phase_shift: 0.0
             };
 

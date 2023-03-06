@@ -1,0 +1,10 @@
+effect_type = "Reverb"
+affected_tracks = [0]
+start = 0
+duration = 10
+channels = "All"
+
+[reverb_settings]
+delay = 0.1
+decay_factor = 0.9
+mix_percentage = 90

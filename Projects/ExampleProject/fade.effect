@@ -1,9 +1,17 @@
+# State the desired effect. Currently supported effects are "Fade" and "Reverb".
 effect_type = "Fade"
+# List the indices of the track(s) that are to be affected. 
+# An index of 0 is the first track listed in your project file. 1 is the second, etc.
 affected_tracks = [0]
+# Time values are in seconds.
 start = 15
 duration = 15
+# These are the channels that are affected.
 channels = "All"
 
+# These settings are the parameters for the chosen effect type.
 [fade_settings]
+# Types include: "Linear", "Quadratic", and "NegativeQuadratic"
 fade_type = "NegativeQuadratic"
+# State whether the fade is "In" or "Out".
 fade_direction = "Out"

@@ -1,10 +1,19 @@
+# State the desired effect. Currently supported effects are "Fade" and "Reverb".
 effect_type = "Reverb"
+# List the indices of the track(s) that are to be affected. 
+# An index of 0 is the first track listed in your project file. 1 is the second, etc.
 affected_tracks = [0]
+# Time values are in seconds.
 start = 0
 duration = 30
+# These are the channels that are affected.
 channels = "All"
 
+# These settings are the parameters for the chosen effect type.
 [reverb_settings]
+# Delay in seconds until the audio echoes.
 delay = 0.1
+# Value ranges from 0 to 1 and is inversely proportional to the fadeout speed of the reverb.
 decay_factor = 0.9
+# The percentage of wet audio that is used.
 mix_percentage = 90
