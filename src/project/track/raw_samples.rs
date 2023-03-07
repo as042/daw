@@ -17,12 +17,19 @@ pub type Samples = [Vec<f64>; 8];
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct RawSamples {
     samples: Samples,
-    pub settings: WavSettings
+    settings: WavSettings
 }
 
 impl RawSamples {
+    pub fn new(settings: WavSettings) -> Self {
+        RawSamples { settings: settings, ..Default::default() }
+    }
+
     pub fn samples(&self) -> &Samples {
         &self.samples
+    }
+    pub fn settings(&self) -> WavSettings {
+        self.settings
     }
 
     /// Adds the given sample to the data.

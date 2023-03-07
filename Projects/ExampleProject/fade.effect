@@ -4,8 +4,8 @@ effect_type = "Fade"
 # An index of 0 is the first track listed in your project file. 1 is the second, etc.
 affected_tracks = [0]
 # Time values are in seconds.
-start = 15
-duration = 15
+start = 4
+duration = 4
 # These are the channels that are affected.
 channels = "All"
 

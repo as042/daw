@@ -10,7 +10,7 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
         if progress_updates { println!("Converting MIDI track data to raw samples."); }
         let notes = track.midi().notes();
         let mut raw_sample_track = Track::default();
-        raw_sample_track.data = Box::new(RawSamples::default());
+        raw_sample_track.data = Box::new(RawSamples::new(export_settings));
         let data = raw_sample_track.raw_samples_mut();
         
         for note in notes {
@@ -40,7 +40,7 @@ pub(super) fn raw_sample_data(data: &mut Vec<u8>, tracks: &Vec<Track>, export_se
     }
     for track in raw_sample_tracks.iter().filter(|t| t.is_type(TrackType::RawSamples)).map(|t| t) {
         let samples = track.raw_samples().samples();
-        let settings = track.raw_samples().settings;
+        let settings = track.raw_samples().settings();
         
         if progress_updates { println!("Resampling."); }
 

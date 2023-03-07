@@ -5,7 +5,7 @@ effect_type = "Reverb"
 affected_tracks = [0]
 # Time values are in seconds.
 start = 0
-duration = 30
+duration = 8
 # These are the channels that are affected.
 channels = "All"
 

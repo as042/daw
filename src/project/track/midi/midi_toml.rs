@@ -9,7 +9,8 @@ use super::{MIDI, pitch::Pitch};
 pub struct TomlNote {
     start: f64,
     duration: f64,
-    pitch: String,
+    note: Option<String>,
+    notes: Option<Vec<String>>,
     dynamic: Option<Dynamic>,
     instrument: Option<Instrument>,
     channels: Option<TomlChannels>
@@ -24,18 +25,47 @@ pub enum TomlChannels {
 }
 
 impl TomlNote {
-    fn to_note(&self) -> Note {
-        Note { 
-            freq: Pitch::from_str(&self.pitch).uw().to_freq(), 
-            velocity: self.dynamic.uw().to_vel(), 
-            channels: match self.channels.uw() {
-                TomlChannels::All => Channels::All,
-                TomlChannels::Left => Channels::Just(0),
-                TomlChannels::Right => Channels::Just(1),
-                TomlChannels::None => Channels::None
-            }, 
-            instrument: self.instrument.uw(), 
-            time: Time::new(self.start, self.duration) }
+    fn to_notes(&self) -> Result<Vec<Note>, ()> {
+        if self.note.is_some() {
+            if self.notes.is_some() { return Err(()) };
+
+            Ok(vec![Note { 
+                freq: Pitch::from_str(self.note.as_ref().uw()).uw().to_freq(), 
+                velocity: self.dynamic.uw().to_vel(), 
+                channels: match self.channels.uw() {
+                    TomlChannels::All => Channels::All,
+                    TomlChannels::Left => Channels::Just(0),
+                    TomlChannels::Right => Channels::Just(1),
+                    TomlChannels::None => Channels::None
+                }, 
+                instrument: self.instrument.uw(), 
+                time: Time::new(self.start, self.duration) 
+            }])
+        }
+        else if self.notes.is_some() {
+            if self.note.is_some() { return Err(()) }
+
+            let mut vec = Vec::default();
+            for note in self.notes.as_ref().uw() {
+                vec.push(Note { 
+                    freq: Pitch::from_str(&note).uw().to_freq(), 
+                    velocity: self.dynamic.uw().to_vel(), 
+                    channels: match self.channels.uw() {
+                        TomlChannels::All => Channels::All,
+                        TomlChannels::Left => Channels::Just(0),
+                        TomlChannels::Right => Channels::Just(1),
+                        TomlChannels::None => Channels::None
+                    }, 
+                    instrument: self.instrument.uw(), 
+                    time: Time::new(self.start, self.duration) 
+                });
+            }
+
+            Ok(vec)
+        }
+        else {
+            return Err(())
+        }
     }
 }
 
@@ -55,7 +85,7 @@ impl MIDI {
 
         let toml_note: TomlNote = toml::from_str(&toml_data.ts()).uw();
 
-        self.add_note(toml_note.to_note());
+        self.add_note(toml_note.to_notes().uw()[0]);
 
         Ok(())
     }
@@ -78,16 +108,17 @@ impl MIDI {
 
         let mut toml_data = String::default();
         if file.read_to_string(&mut toml_data).is_err() { return Err("Invalid track file"); }
+        toml_data = toml_data.chars().filter(|c| c != &' ').collect();
 
         if progress_updates { println!("Lexing track file."); }
 
-        if toml_data.find("start").is_none() { return Err("No TOMLs found in track file") }
+        if toml_data.find("start=").is_none() { return Err("No TOMLs found in track file") }
 
         let mut tomls = vec![];
         loop {
             let mut toml_copy = toml_data.clone();
-            toml_copy.remove(toml_data.find("start").uw());
-            let find = toml_copy.find("start");
+            toml_copy.remove(toml_data.find("start=").uw());
+            let find = toml_copy.find("start=");
             if find.is_none() { 
                 tomls.push(toml_data);
                 break; 
@@ -105,14 +136,16 @@ impl MIDI {
         let mut channels = TomlChannels::All;
         for toml in tomls {
             let de: Result<TomlNote, toml::de::Error> = toml::from_str(toml.as_str());
-            if de.is_err() { return Err("Incorrect TOML data"); }
+            // if de.is_err() { return Err("Incorrect TOML data"); }
             let mut toml_note = de.uw();
 
             if toml_note.dynamic.is_some() { dynamic = toml_note.dynamic.uw() } else { toml_note.dynamic = Some(dynamic) }
             if toml_note.instrument.is_some() { instrument = toml_note.instrument.uw() } else { toml_note.instrument = Some(instrument) }
             if toml_note.channels.is_some() { channels = toml_note.channels.uw() } else { toml_note.channels = Some(channels) }
 
-            self.notes.push(toml_note.to_note());
+            let notes = toml_note.to_notes();
+            if notes.is_err() { return Err("Incorrect TOML data"); }
+            self.notes.append(&mut notes.uw());
         }
 
         Ok(())
