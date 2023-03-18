@@ -35,13 +35,13 @@ impl RawSamples {
         *buffer = buffer.iter().map(|s| s * amp / max_amp).collect();
     }
 
-    fn fft(buffer: &mut Vec<Complex<f64>>) {
+    pub(super) fn fft(buffer: &mut Vec<Complex<f64>>) {
         let mut planner = FftPlanner::new();
         let fft = planner.plan_fft_forward(buffer.len());
 
         fft.process(buffer);
     }
-    fn ifft(buffer: &mut Vec<Complex<f64>>) {
+    pub(super) fn ifft(buffer: &mut Vec<Complex<f64>>) {
         let mut planner = FftPlanner::new();
         let fft = planner.plan_fft_inverse(buffer.len());
 

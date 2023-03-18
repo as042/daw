@@ -5,6 +5,7 @@ pub mod modulators;
 pub mod channels;
 pub mod fade;
 pub mod reverb;
+pub mod pitch_shift;
 
 use std::mem::discriminant;
 pub use method_shorthands::methods::*;
