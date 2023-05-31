@@ -4,13 +4,15 @@ use performance_tester::test_performance;
 
 fn main() {
     // let mut project = Project::new();
-    // let data = project.new_track(TrackType::MIDI).midi_mut();
+    // let data = project.new_track(TrackType::RawSamples).raw_samples_mut();
+
+    // data.add_triangle_wave(Wave { freq: C7, amp: 0.1, phase_shift: 0.0 }, Channels::All, Time::new(0.0, 2.0));
 
     // data.add_note(Note { 
-    //     freq: C4, 
+    //     freq: C7, 
     //     velocity: 60, 
     //     channels: Channels::All, 
-    //     instrument: Instrument::SubtractiveSynth, 
+    //     instrument: Instrument::Sine, 
     //     time: Time::new(0.0, 2.0) });
     // data.add_note(Note { 
     //     freq: E4, 
