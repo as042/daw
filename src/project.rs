@@ -24,11 +24,13 @@ pub struct Project {
 }
 
 impl Project {
+    /// Creates a new empty `Project`.
     #[inline]
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Adds a new track to `self`.
     #[inline]
     pub fn new_track(&mut self, track_type: TrackType) -> &mut Track {
         let mut track = Track::default();
@@ -46,6 +48,7 @@ impl Project {
         &mut self.tracks[len - 1]
     }
 
+    /// Returns the specified track if it exists.
     #[inline]
     pub fn track(&mut self, track_type: TrackType, rank: usize) -> Result<&mut Track, String> {
         let mut count = 0;
@@ -62,6 +65,7 @@ impl Project {
         Err("Cannot find specific track.".ts())
     }
 
+    /// WIP. Exports `Project` to midi.
     #[inline]
     pub fn export_midi(&self) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".ts()); }
@@ -70,7 +74,7 @@ impl Project {
         todo!();
     }
 
-    /// Export Project to .wav file
+    /// Exports `Project` to .wav file.
     #[inline]
     pub fn export_wav(&self, wav_settings: WavSettings, path: impl AsRef<Path>, progress_updates: bool) -> Result<(), String> {
         if self.tracks.len() == 0 { return Err("Project must have at least 1 track.".ts()); }
@@ -102,7 +106,7 @@ impl Project {
         Ok(())
     }
 
-    /// Create Project from .project file
+    /// Creates `Project` from .project file
     #[inline]
     pub fn from_toml(path: impl AsRef<Path> + Display, progress_updates: bool) -> Result<(Self, WavSettings, String), String> {
         let p = &path.to_string();
@@ -141,8 +145,20 @@ impl Project {
 
         Ok((project.uw(), toml_project.settings, export_file_name + ".wav"))
     }
+    
+    /// Creates `Project` from .project file and export to .wav.
+    #[inline]
+    pub fn from_path(path: impl AsRef<Path> + Display) {    
+        let from_toml = Project::from_toml(path, true);
+        if let Ok(output) = from_toml {
+            output.0.export_wav(output.1, output.2, true).uw();
+        }  
+        else {
+            println!("Error: {}. \nOperation unsuccessful.", from_toml.unwrap_err());
+        }
+    }
 
-    /// Create project from files inputted through console and export to wav.
+    /// Creates `Project` from .project file via console and export to wav. Input the path to the .project file.
     #[inline]
     pub fn from_console_input() {
         let mut path = String::default();
@@ -169,7 +185,7 @@ struct TomlProject {
 
 impl TomlProject {
     #[inline]
-    pub fn to_project(&self, project_location: String, progress_updates: bool) -> Result<Project, String> {
+    pub(crate) fn to_project(&self, project_location: String, progress_updates: bool) -> Result<Project, String> {
         let mut project = Project { progress_updates: true, ..Default::default() };
         for track_path in &self.tracks {
             let track = project.new_track(TrackType::MIDI);

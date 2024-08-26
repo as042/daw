@@ -11,4 +11,4 @@ num_channels = 2
 # Higher sample rate means higher quality but can take longer to process. Common values are 44100 and 88200. 
 sample_rate = 88200
 # More bytes per sample means higher quality but can take longer to process. Common values are 2 and 3.
-bytes_per_sample = 2
+bytes_per_sample = 3

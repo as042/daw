@@ -11,7 +11,7 @@ pub fn resample(samples: &Samples, settings: WavSettings, export_sample_rate: i3
         for k in 0..new_len {
             let sample_index = i.floor() as usize;
             let frac = i - sample_index as f64;
-            if sample_index < samples.len() - 1 {
+            if sample_index < samples[j].len() - 1 {
                 resampled[k] = samples[j][sample_index] * (1.0 - frac) + samples[j][sample_index + 1] * frac;
             } else {
                 resampled[k] = samples[j][sample_index];
