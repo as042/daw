@@ -3,6 +3,7 @@ pub mod note_freqs;
 #[allow(dead_code, unused_imports, unused_variables)]
 mod tests;
 
+#[allow(unused_imports)]
 pub mod prelude {
     pub use crate::{project::{*, time::*, raw_samples::{*, channels::*, modifiers::*, fade::*, reverb::*}, midi::{*, instrument::*, note::*, dynamics::*, midi_toml::*}, score::*, effect::*}, note_freqs::*};
 }
